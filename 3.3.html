@@ -551,8 +551,6 @@ ldr.atten(ADC.ATTN_11DB)
 ADC_GELAP = 4000  # Ganti Nilai ADC saat gelap (0% Cahaya) 
 ADC_TERANG = 200  # Ganti Nilai ADC saat disorot Flash HP (100% Cahaya) 
 
-print("Program Kalibrasi LDR (Pythonic) Dimulai...")
-
 while True:
     # 1. Membaca nilai analog mentah dari LDR (0 - 4095)
     nilai_analog = ldr.read()
