@@ -16,6 +16,18 @@
 
     <style>
       body {
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
       }
     </style>
   </head>
@@ -582,9 +594,7 @@
     <footer
       class="max-w-6xl mx-auto w-full px-4 pt-4 text-center text-xs text-slate-500 font-medium"
     >
-      <p>
-        © MIKRO EDU - SMK SMTI Yogyakarta | Teknik Mekatronika
-      </p>
+      <p>© MIKRO EDU - SMK SMTI Yogyakarta | Teknik Mekatronika</p>
     </footer>
 
     <!-- LOGIKA JAVASCRIPT MICROPYTHON THONNY -->
