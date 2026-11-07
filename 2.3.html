@@ -1,0 +1,1141 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sub 2.3 - Sensor Digital MicroPython ESP32</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      body {
+      }
+      @keyframes sensorPulse {
+        0% {
+          transform: scale(0.95);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.12);
+          opacity: 0.3;
+        }
+        100% {
+          transform: scale(0.95);
+          opacity: 0.8;
+        }
+      }
+      .animate-sensor-pulse {
+        animation: sensorPulse 1.8s infinite ease-in-out;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased pb-10"
+  >
+    <!-- HEADER APP (BLUE THEME) -->
+    <header
+      class="bg-blue-900 border-b border-blue-800 text-white sticky top-0 z-40 shadow-sm"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3">
+          <a
+            href="index.html"
+            class="w-9 h-9 rounded-xl bg-blue-800 hover:bg-blue-700 text-blue-100 border border-blue-700 flex items-center justify-center text-sm transition-colors"
+            title="Kembali"
+          >
+            <i class="fa-solid fa-home"></i>
+          </a>
+          <div>
+            <div class="flex items-center gap-2">
+              <span
+                class="text-[10px] font-extrabold bg-blue-800 text-blue-200 border border-blue-700 px-2 py-0.5 rounded uppercase tracking-wider"
+              >
+                SUB 2.3 - MICROPYTHON
+              </span>
+            </div>
+            <h1
+              class="text-sm sm:text-base font-bold text-white leading-tight mt-0.5"
+            >
+              Pembacaan Sensor Digital (Digital Read)
+            </h1>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <!-- HERO BANNER BLUE -->
+      <section
+        class="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden border border-blue-800"
+      >
+        <div
+          class="absolute -right-4 -bottom-6 opacity-10 pointer-events-none hidden sm:block select-none"
+        >
+          <i class="fa-solid fa-satellite-dish text-[140px] text-white"></i>
+        </div>
+        <div class="relative z-10 space-y-1.5 max-w-3xl">
+          <div
+            class="inline-flex items-center gap-2 bg-blue-800/80 border border-blue-700 text-blue-100 px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md"
+          >
+            <i class="fa-solid fa-microchip text-blue-300 text-xs"></i>
+            <span>Praktik Modul Sensor Digital MicroPython</span>
+          </div>
+          <h2
+            class="text-lg sm:text-xl font-extrabold text-white leading-tight display-font"
+          >
+            Pengenalan & Pembacaan 6 Sensor Digital ESP32
+          </h2>
+          <p
+            class="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-normal"
+          >
+            Pelajari cara kerja modul sensor digital (LDR, Getar, IR, Flame, Gas
+            MQ-2, dan PIR Motion) yang mengubah fenomena fisik menjadi sinyal
+            logika biner (<code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >1</code
+            >
+            /
+            <code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >0</code
+            >) pada
+            <code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >GPIO 2</code
+            >
+            menggunakan MicroPython.
+          </p>
+        </div>
+      </section>
+
+      <!-- SKEMA RANGKAIAN & VISUAL HARDWARE -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- GAMBAR RANGKAIAN (2 Kolom) -->
+        <div
+          class="md:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between"
+        >
+          <div
+            class="w-full flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-diagram-project text-blue-600"></i> Skema
+              Rangkaian ESP32
+            </h2>
+            <span
+              id="circuitPinBadge"
+              class="text-xs font-semibold text-blue-800 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md"
+            >
+              Sensor DO: GPIO 2 | VCC: 3.3V
+            </span>
+          </div>
+
+          <div
+            class="w-full bg-slate-50 p-3 sm:p-5 rounded-xl border border-slate-200 flex items-center justify-center min-h-[220px]"
+          >
+            <img
+              id="schemaImage"
+              src="img/modul02/2.4.1.png"
+              alt="Skema Rangkaian Sensor Digital ESP32 GPIO 2"
+              class="max-h-[260px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs"
+              onerror="
+                this.onerror = null;
+                this.src = '2.4.1.png';
+              "
+            />
+          </div>
+        </div>
+
+        <!-- SIMULATOR VISUAL HARDWARE INTERAKTIF (1 Kolom) -->
+        <div
+          class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between items-center text-center overflow-hidden"
+        >
+          <div
+            class="w-full border-b border-slate-100 pb-2.5 flex items-center justify-between mb-2"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-microchip text-blue-600"></i> Visual
+              Hardware
+            </h2>
+            <span
+              class="text-[10px] font-bold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded"
+              >REAL TIME SIM</span
+            >
+          </div>
+
+          <!-- CONTAINER SIMULATOR HARDWARE -->
+          <div
+            class="relative w-full h-full min-h-[230px] bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 rounded-2xl p-4 flex flex-col items-center justify-between overflow-hidden border border-slate-200 shadow-inner my-auto"
+          >
+            <div
+              class="absolute inset-0 opacity-25 bg-[radial-gradient(#2563eb_1px,transparent_1px)] [background-size:12px_12px]"
+            ></div>
+
+            <!-- HARDWARE MODULE STATUS LEDS BAR -->
+            <div
+              class="z-10 w-full flex items-center justify-between px-2 py-1 bg-white/90 rounded-lg border border-slate-200/80 backdrop-blur-xs shadow-2xs"
+            >
+              <div
+                class="flex items-center gap-1.5 text-[10px] font-mono text-slate-700"
+              >
+                <span
+                  id="ledPwr"
+                  class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+                ></span>
+                <span class="font-bold">PWR</span>
+              </div>
+              <div
+                class="text-[10px] font-mono font-bold text-slate-600 uppercase tracking-widest"
+                id="moduleBoardLabel"
+              >
+                SENSOR MODULE
+              </div>
+              <div
+                class="flex items-center gap-1.5 text-[10px] font-mono text-slate-700"
+              >
+                <span class="font-bold">DO LED</span>
+                <span
+                  id="ledDo"
+                  class="w-2.5 h-2.5 rounded-full bg-slate-300 transition-all duration-300"
+                ></span>
+              </div>
+            </div>
+
+            <!-- SIMULATOR DYNAMIC SENSOR VISUAL ICON -->
+            <div
+              class="z-10 flex flex-col items-center justify-center my-auto space-y-2.5 py-2"
+            >
+              <div class="relative flex items-center justify-center">
+                <div
+                  id="sensorAura"
+                  class="absolute w-28 h-28 rounded-2xl bg-amber-500/20 animate-sensor-pulse hidden"
+                ></div>
+
+                <div
+                  id="sensorIconBg"
+                  class="relative z-10 w-20 h-20 rounded-2xl bg-white text-slate-500 border-2 border-slate-200 flex items-center justify-center shadow-md transition-all duration-300"
+                >
+                  <i id="sensorVisualIcon" class="fa-solid fa-sun text-3xl"></i>
+                </div>
+              </div>
+
+              <div class="text-center">
+                <div
+                  id="sensorStateText"
+                  class="text-xs font-black text-slate-800 uppercase tracking-wide"
+                >
+                  KONDISI GELAP / REDUP
+                </div>
+                <div
+                  id="sensorSubText"
+                  class="text-[11px] text-slate-500 font-medium"
+                >
+                  Kondisi Standby / Normal
+                </div>
+              </div>
+            </div>
+
+            <!-- SIMULATOR CONTROL BUTTON & PIN STATUS -->
+            <div class="z-10 flex flex-col items-center gap-2 w-full">
+              <button
+                id="btnTriggerSim"
+                onclick="toggleSensorTrigger()"
+                class="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-extrabold text-xs rounded-xl shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer select-none border border-blue-400/30"
+              >
+                <i
+                  id="btnTriggerIcon"
+                  class="fa-solid fa-toggle-off text-base"
+                ></i>
+                <span id="btnTriggerText">Aktifkan Pemicu Sensor (Toggle)</span>
+              </button>
+
+              <div class="flex items-center gap-2 w-full text-[10px] font-mono">
+                <span
+                  id="pinStatusBadge"
+                  class="flex-1 py-1 rounded bg-white text-slate-700 font-bold border border-slate-200 shadow-2xs"
+                >
+                  GPIO 2: 1
+                </span>
+                <span
+                  id="sensorStatusBadge"
+                  class="flex-1 py-1 rounded bg-white text-slate-700 font-bold border border-slate-200 shadow-2xs"
+                >
+                  STATE: STANDBY
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SELEKTOR MISI PRAKTIKUM (6 SENSOR) -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3
+            class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-sliders text-blue-600"></i> Pilih Modul Sensor
+            MicroPython
+          </h3>
+          <span
+            class="text-xs font-bold text-blue-800 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full"
+          >
+            6 Sensor Digital
+          </span>
+        </div>
+
+        <!-- TABS MISI (6 MISI SENSOR) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <button
+            onclick="selectMission(1)"
+            id="btn-misi-1"
+            class="mission-btn p-3 rounded-xl border-2 border-blue-600 bg-blue-50/70 text-left transition flex flex-col justify-between h-20 shadow-xs cursor-pointer"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] font-black uppercase text-blue-700 tracking-wider"
+                >Misi 1</span
+              >
+              <i class="fa-solid fa-sun text-blue-600 text-xs"></i>
+            </div>
+            <div class="font-bold text-xs text-slate-900 truncate">
+              Sensor LDR
+            </div>
+            <div class="text-[10px] text-slate-600 truncate">
+              Cahaya Digital
+            </div>
+          </button>
+
+          <button
+            onclick="selectMission(2)"
+            id="btn-misi-2"
+            class="mission-btn p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-left transition flex flex-col justify-between h-20 cursor-pointer"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] font-black uppercase text-slate-400 tracking-wider"
+                >Misi 2</span
+              >
+              <i class="fa-solid fa-bolt text-slate-400 text-xs"></i>
+            </div>
+            <div class="font-bold text-xs text-slate-800 truncate">
+              Sensor Getar
+            </div>
+            <div class="text-[10px] text-slate-500 truncate">
+              Vibration Module
+            </div>
+          </button>
+
+          <button
+            onclick="selectMission(3)"
+            id="btn-misi-3"
+            class="mission-btn p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-left transition flex flex-col justify-between h-20 cursor-pointer"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] font-black uppercase text-slate-400 tracking-wider"
+                >Misi 3</span
+              >
+              <i class="fa-solid fa-rss text-slate-400 text-xs"></i>
+            </div>
+            <div class="font-bold text-xs text-slate-800 truncate">
+              Sensor IR
+            </div>
+            <div class="text-[10px] text-slate-500 truncate">
+              Halangan Infra Red
+            </div>
+          </button>
+
+          <button
+            onclick="selectMission(4)"
+            id="btn-misi-4"
+            class="mission-btn p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-left transition flex flex-col justify-between h-20 cursor-pointer"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] font-black uppercase text-slate-400 tracking-wider"
+                >Misi 4</span
+              >
+              <i class="fa-solid fa-fire text-slate-400 text-xs"></i>
+            </div>
+            <div class="font-bold text-xs text-slate-800 truncate">
+              Sensor Api
+            </div>
+            <div class="text-[10px] text-slate-500 truncate">Flame Sensor</div>
+          </button>
+
+          <button
+            onclick="selectMission(5)"
+            id="btn-misi-5"
+            class="mission-btn p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-left transition flex flex-col justify-between h-20 cursor-pointer"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] font-black uppercase text-slate-400 tracking-wider"
+                >Misi 5</span
+              >
+              <i class="fa-solid fa-smog text-slate-400 text-xs"></i>
+            </div>
+            <div class="font-bold text-xs text-slate-800 truncate">
+              Sensor Gas
+            </div>
+            <div class="text-[10px] text-slate-500 truncate">MQ-2 Asap/Gas</div>
+          </button>
+
+          <button
+            onclick="selectMission(6)"
+            id="btn-misi-6"
+            class="mission-btn p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-left transition flex flex-col justify-between h-20 cursor-pointer"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] font-black uppercase text-slate-400 tracking-wider"
+                >Misi 6</span
+              >
+              <i class="fa-solid fa-person-walking text-slate-400 text-xs"></i>
+            </div>
+            <div class="font-bold text-xs text-slate-800 truncate">
+              Sensor PIR
+            </div>
+            <div class="text-[10px] text-slate-500 truncate">Motion Gerak</div>
+          </button>
+        </div>
+
+        <!-- PANEL DESKRIPSI MISI -->
+        <div
+          id="mission-description-box"
+          class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs sm:text-sm text-blue-950 flex items-start gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 font-bold text-sm"
+          >
+            <i id="mission-icon" class="fa-solid fa-sun"></i>
+          </div>
+          <div class="space-y-1">
+            <div id="mission-title" class="font-bold">
+              Misi 1: Sensor Cahaya (LDR Digital)
+            </div>
+            <p id="mission-goal" class="text-slate-700 text-xs">
+              <strong>Tugas Kamu:</strong> Modul LDR Digital mengeluarkan sinyal
+              0 (LOW) saat intensitas cahaya terang melebihi ambang batas
+              potensiometer.
+            </p>
+          </div>
+        </div>
+
+        <!-- THONNY IDE CONTAINER -->
+        <div
+          class="rounded-xl overflow-hidden shadow-xs border border-slate-300 bg-white font-sans"
+        >
+          <!-- TOOLBAR OTENTIK THONNY -->
+          <div
+            class="bg-slate-200 border-b border-slate-300 px-3 py-1.5 flex items-center justify-between select-none"
+          >
+            <div class="flex items-center gap-1 sm:gap-2">
+              <button
+                title="New File"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-file text-sm"></i>
+              </button>
+              <button
+                title="Open..."
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-folder-open text-sm"></i>
+              </button>
+              <button
+                title="Save"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-floppy-disk text-sm"></i>
+              </button>
+
+              <div class="h-4 w-[1px] bg-slate-400 mx-1"></div>
+
+              <!-- RUN BUTTON (PLAY HIJAU THONNY) -->
+              <button
+                id="btnUpload"
+                onclick="uploadAndRun()"
+                title="Run current script (F5)"
+                class="w-7 h-7 rounded bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center transition cursor-pointer shadow-2xs"
+              >
+                <i class="fa-solid fa-play text-xs"></i>
+              </button>
+
+              <button
+                title="Debug script"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-600 flex items-center justify-center transition"
+              >
+                <i class="fa-solid fa-bug text-xs"></i>
+              </button>
+
+              <button
+                id="btnStop"
+                onclick="stopProgram()"
+                title="Stop / Restart backend (Ctrl+F2)"
+                class="w-7 h-7 rounded bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center transition cursor-pointer shadow-2xs"
+              >
+                <i class="fa-solid fa-stop text-xs"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                id="btnCopy"
+                onclick="copyCode()"
+                class="bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold px-2.5 py-1 rounded flex items-center gap-1.5 transition border border-slate-300 cursor-pointer shadow-2xs"
+              >
+                <i id="btnCopyIcon" class="fa-solid fa-copy text-slate-600"></i>
+                <span id="btnCopyText" class="hidden sm:inline"
+                  >Salin Kode</span
+                >
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB HEADER THONNY -->
+          <div
+            class="bg-slate-100 border-b border-slate-200 px-3 py-1 flex items-center justify-between text-slate-700 text-xs select-none"
+          >
+            <div class="flex items-center gap-1">
+              <div
+                class="bg-white px-3 py-1 rounded-t border-t-2 border-t-blue-600 border-x border-slate-300 text-slate-900 font-mono text-xs font-semibold flex items-center gap-2"
+              >
+                <i class="fa-regular fa-file-code text-blue-600"></i>
+                <span id="ideTitle">misi1_ldr.py</span>
+              </div>
+            </div>
+            <div class="font-mono text-[11px] text-slate-500">
+              MicroPython (ESP32)
+            </div>
+          </div>
+
+          <!-- EDITOR AREA -->
+          <div class="flex min-h-[220px]">
+            <div class="p-3 sm:p-4 overflow-x-auto w-full bg-white">
+              <div
+                id="codeDisplay"
+                class="font-mono text-xs sm:text-sm leading-relaxed"
+              ></div>
+            </div>
+          </div>
+
+          <!-- REPL SHELL THONNY -->
+          <div class="border-t border-slate-300 bg-slate-50">
+            <div
+              class="bg-slate-200 border-b border-slate-300 px-3 py-1 flex items-center justify-between text-slate-700 text-xs font-semibold select-none"
+            >
+              <div class="flex items-center gap-2 font-mono">
+                <i class="fa-solid fa-terminal text-slate-600 text-[11px]"></i>
+                <span>Shell (MicroPython REPL)</span>
+              </div>
+              <button
+                onclick="clearSerialMonitor()"
+                class="text-[11px] font-sans hover:text-slate-900 text-slate-500 underline cursor-pointer"
+              >
+                Clear Shell
+              </button>
+            </div>
+
+            <div
+              class="p-3 bg-white min-h-[140px] max-h-[180px] overflow-y-auto font-mono text-xs text-slate-900 space-y-1"
+              id="serialMonitorOutput"
+            >
+              <div class="text-slate-400 italic">
+                MicroPython v1.23.0 on ESP32<br />
+                Type "help()" for more information.<br />
+                &gt;&gt;&gt; [REPL Ready. Klik tombol Play (Hijau) di toolbar
+                Thonny untuk menjalankan script]
+              </div>
+            </div>
+          </div>
+
+          <!-- STATUS BAR THONNY -->
+          <div
+            class="bg-slate-200 px-3 py-1 text-[11px] text-slate-700 flex justify-between items-center font-sans border-t border-slate-300 select-none"
+          >
+            <span class="flex items-center gap-1.5" id="ideStatusContainer">
+              <span
+                class="w-2 h-2 rounded-full bg-emerald-600 inline-block animate-pulse"
+              ></span>
+              <span id="ideStatusText" class="font-mono"
+                >MicroPython v1.23.0 | Sensor Pin: GPIO 2</span
+              >
+            </span>
+            <span class="font-mono text-[11px] text-slate-800 font-semibold"
+              >MicroPython (ESP32) • COM3</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- NAVIGATION FOOTER -->
+      <nav class="flex items-center justify-between pt-2">
+        <a
+          href="2.2.html"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-xs transition-colors shadow-2xs"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Sub 2.2: Sakelar LED</span>
+        </a>
+        <a
+          href="2.4.html"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-bold text-xs transition-colors shadow-xs"
+        >
+          <span>Sub 2.4: Studi Kasus</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </nav>
+    </main>
+
+    <footer
+      class="max-w-6xl mx-auto w-full px-4 pt-4 text-center text-xs text-slate-500 font-medium"
+    >
+      <p>© MIKRO EDU - SMK SMTI Yogyakarta | Teknik Mekatronika</p>
+    </footer>
+
+    <!-- LOGIKA JAVASCRIPT MICROPYTHON THONNY -->
+    <script>
+      const missions = {
+        1: {
+          filename: "misi1_ldr.py",
+          imgSrc: "img/modul02/2.4.1.png",
+          title: "Misi 1: Sensor Cahaya (LDR Digital)",
+          moduleLabel: "MODUL LDR DIGITAL",
+          icon: "fa-sun",
+          activeColorClass:
+            "bg-amber-500 border-amber-400 text-white shadow-[0_0_20px_rgba(245,158,11,0.5)]",
+          auraColorClass: "bg-amber-500/30",
+          activeLogic: 0,
+          detectText: "Cahaya Terang Terdeteksi!",
+          normalText: "Kondisi Gelap / Redup",
+          desc: "<strong>Tugas 1:</strong> Modul LDR Digital memberikan sinyal <code class='font-mono font-bold text-blue-700'>0 (LOW)</code> saat intensitas cahaya terang melebihi ambang batas potensiometer.",
+          rawCode: `# --- MISI 1: SENSOR LDR DIGITAL (MICROPYTHON ESP32) ---
+from machine import Pin
+import time
+
+pin_sensor = Pin(2, Pin.IN)  # Digital Out (D0) LDR ke GPIO 2
+
+while True:
+    nilai_sensor = pin_sensor.value()  # Baca nilai digital (0 atau 1)
+
+    if nilai_sensor == 0:  # Terang (Sinyal 0 / LOW)
+        print("LDR: TERANG | Sinyal: 0 (Cahaya Terdeteksi)")
+    else:
+        print("LDR: GELAP  | Sinyal: 1 (Kondisi Gelap)")
+    
+    time.sleep(0.3)  # Jeda pembacaan
+`,
+        },
+        2: {
+          filename: "misi2_vibration.py",
+          imgSrc: "img/modul02/2.4.2.png",
+          title: "Misi 2: Sensor Getar (Vibration Sensor)",
+          moduleLabel: "MODUL SENSOR GETAR",
+          icon: "fa-bolt",
+          activeColorClass:
+            "bg-purple-600 border-purple-400 text-white shadow-[0_0_20px_rgba(147,51,234,0.5)]",
+          auraColorClass: "bg-purple-500/30",
+          activeLogic: 0,
+          detectText: "Getaran Terdeteksi!",
+          normalText: "Kondisi Tenang / Tanpa Getaran",
+          desc: "<strong>Tugas 2:</strong> Sensor getar mendeteksi guncangan mekanis. Saat modul bergetar, pin D0 akan menghasilkan sinyal logika <code class='font-mono font-bold text-blue-700'>0 (LOW)</code>.",
+          rawCode: `# --- MISI 2: SENSOR GETAR DIGITAL ---
+from machine import Pin
+import time
+
+pin_sensor = Pin(2, Pin.IN)
+
+
+while True:
+    nilai_sensor = pin_sensor.value()
+
+    if nilai_sensor == 0:
+        print("GETARAN: TERDETEKSI! | Sinyal: 0 (Ada Guncangan)")
+    else:
+        print("GETARAN: TENANG      | Sinyal: 1 (Tidak Ada Getaran)")
+    
+    time.sleep(0.3)
+`,
+        },
+        3: {
+          filename: "misi3_ir.py",
+          imgSrc: "img/modul02/2.4.3.png",
+          title: "Misi 3: Sensor IR Obstacle (Halangan)",
+          moduleLabel: "MODUL IR OBSTACLE",
+          icon: "fa-rss",
+          activeColorClass:
+            "bg-cyan-600 border-cyan-400 text-white shadow-[0_0_20px_rgba(8,145,178,0.5)]",
+          auraColorClass: "bg-cyan-500/30",
+          activeLogic: 0,
+          detectText: "Ada Objek / Halangan!",
+          normalText: "Area Bebas / Tanpa Halangan",
+          desc: "<strong>Tugas 3:</strong> Sensor IR Inframerah mendeteksi pantulan objek di depannya. Saat objek terdeteksi, pin OUT bernilai <code class='font-mono font-bold text-blue-700'>0 (LOW)</code>.",
+          rawCode: `# --- MISI 3: SENSOR IR OBSTACLE ---
+from machine import Pin
+import time
+
+pin_sensor = Pin(2, Pin.IN)
+
+
+while True:
+    nilai_sensor = pin_sensor.value()
+
+    if nilai_sensor == 0:
+        print("IR: OBJEK TERDETEKSI! | Sinyal: 0 (Ada Halangan)")
+    else:
+        print("IR: AREA BEBAS        | Sinyal: 1 (Tidak Ada Objek)")
+    
+    time.sleep(0.3)
+`,
+        },
+        4: {
+          filename: "misi4_flame.py",
+          imgSrc: "img/modul02/2.4.4.png",
+          title: "Misi 4: Sensor Api (Flame Sensor)",
+          moduleLabel: "MODUL FLAME SENSOR",
+          icon: "fa-fire",
+          activeColorClass:
+            "bg-rose-600 border-rose-400 text-white shadow-[0_0_20px_rgba(225,29,72,0.5)]",
+          auraColorClass: "bg-rose-500/30",
+          activeLogic: 0,
+          detectText: "BAHAYA: Api Terdeteksi!",
+          normalText: "Kondisi Aman / Tanpa Api",
+          desc: "<strong>Tugas 4:</strong> Sensor Api peka terhadap gelombang cahaya infra merah nyala api. Saat terdeteksi api, pin D0 menghasilkan sinyal <code class='font-mono font-bold text-blue-700'>0 (LOW)</code>.",
+          rawCode: `# --- MISI 4: SENSOR API (FLAME SENSOR) ---
+from machine import Pin
+import time
+
+pin_sensor = Pin(2, Pin.IN)
+
+
+while True:
+    nilai_sensor = pin_sensor.value()
+
+    if nilai_sensor == 0:
+        print("FLAME: API TERDETEKSI! [BAHAYA] | Sinyal: 0")
+    else:
+        print("FLAME: AMAN                     | Sinyal: 1")
+    
+    time.sleep(0.3)
+`,
+        },
+        5: {
+          filename: "misi5_gas.py",
+          imgSrc: "img/modul02/2.4.5.png",
+          title: "Misi 5: Sensor Gas (MQ-2)",
+          moduleLabel: "MODUL SENSOR MQ-2",
+          icon: "fa-smog",
+          activeColorClass:
+            "bg-orange-500 border-orange-400 text-white shadow-[0_0_20px_rgba(249,115,22,0.5)]",
+          auraColorClass: "bg-orange-500/30",
+          activeLogic: 0,
+          detectText: "Peringatan: Gas/Asap Terdeteksi!",
+          normalText: "Udara Bersih / Normal",
+          desc: "<strong>Tugas 5:</strong> Modul Sensor MQ-2 mendeteksi kebocoran gas LPG atau asap. Saat konsentrasi gas tinggi, pin D0 akan bernilai <code class='font-mono font-bold text-blue-700'>0 (LOW)</code>.",
+          rawCode: `# --- MISI 5: SENSOR GAS MQ-2 ---
+from machine import Pin
+import time
+
+pin_sensor = Pin(2, Pin.IN)
+
+
+while True:
+    nilai_sensor = pin_sensor.value()
+
+    if nilai_sensor == 0:
+        print("MQ-2: GAS/ASAP TERDETEKSI! | Sinyal: 0 (Peringatan)")
+    else:
+        print("MQ-2: UDARA BERSIH         | Sinyal: 1 (Normal)")
+    
+    time.sleep(0.3)
+`,
+        },
+        6: {
+          filename: "misi6_pir.py",
+          imgSrc: "img/modul02/2.4.6.png",
+          title: "Misi 6: Sensor PIR Motion (Gerakan)",
+          moduleLabel: "MODUL PIR MOTION",
+          icon: "fa-person-walking",
+          activeColorClass:
+            "bg-emerald-600 border-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.5)]",
+          auraColorClass: "bg-emerald-500/30",
+          activeLogic: 1,
+          detectText: "Gerakan Manusia Terdeteksi!",
+          normalText: "Tidak Ada Gerakan",
+          desc: "<strong>Tugas 6:</strong> Sensor PIR mendeteksi radiasi inframerah pergerakan makhluk hidup. Saat ada gerakan, pin OUT bernilai <code class='font-mono font-bold text-blue-700'>1 (HIGH)</code>.",
+          rawCode: `# --- MISI 6: SENSOR PIR MOTION ---
+from machine import Pin
+import time
+
+pin_sensor = Pin(2, Pin.IN)
+
+
+while True:
+    nilai_sensor = pin_sensor.value()
+
+    if nilai_sensor == 1:  # Sensor PIR aktif HIGH saat deteksi gerakan
+        print("PIR: GERAKAN TERDETEKSI! | Sinyal: 1")
+    else:
+        print("PIR: TIDAK ADA GERAKAN   | Sinyal: 0")
+    
+    time.sleep(0.3)
+`,
+        },
+      };
+
+      let currentMissionKey = 1;
+      let isProgramRunning = false;
+      let isUploading = false;
+      let isSensorTriggered = false;
+      let liveTimer = null;
+
+      function updateSensorVisualState(isTriggered) {
+        const iconBg = document.getElementById("sensorIconBg");
+        const aura = document.getElementById("sensorAura");
+        const stateText = document.getElementById("sensorStateText");
+        const subText = document.getElementById("sensorSubText");
+        const pinBadge = document.getElementById("pinStatusBadge");
+        const sensorBadge = document.getElementById("sensorStatusBadge");
+        const btnSim = document.getElementById("btnTriggerSim");
+        const btnText = document.getElementById("btnTriggerText");
+        const btnIcon = document.getElementById("btnTriggerIcon");
+        const ledDo = document.getElementById("ledDo");
+
+        const data = missions[currentMissionKey];
+        const isActiveLow = data.activeLogic === 0;
+
+        if (isTriggered) {
+          iconBg.className = `relative z-10 w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300 scale-105 border-2 ${data.activeColorClass}`;
+          aura.className = `absolute w-28 h-28 rounded-2xl animate-sensor-pulse ${data.auraColorClass}`;
+          aura.classList.remove("hidden");
+
+          ledDo.className =
+            "w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.9)] animate-pulse";
+
+          stateText.innerText = data.detectText;
+          stateText.className =
+            "text-xs font-black text-amber-600 uppercase tracking-wide";
+          subText.innerText = "Sinyal Pemicu Sensor Aktif";
+
+          btnSim.className =
+            "w-full py-2 px-4 bg-rose-600 hover:bg-rose-500 active:scale-[0.98] text-white font-extrabold text-xs rounded-xl shadow-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border border-rose-400/40";
+          btnIcon.className = "fa-solid fa-toggle-on text-base text-rose-200";
+          btnText.innerText = "Pemicu AKTIF (Klik u/ Matikan)";
+
+          if (isActiveLow) {
+            pinBadge.className =
+              "flex-1 py-1 rounded bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-2xs";
+            pinBadge.innerText = "GPIO 2: 0";
+          } else {
+            pinBadge.className =
+              "flex-1 py-1 rounded bg-emerald-500 text-white font-bold border border-emerald-400 shadow-2xs";
+            pinBadge.innerText = "GPIO 2: 1";
+          }
+
+          sensorBadge.className =
+            "flex-1 py-1 rounded bg-rose-600 text-white font-bold border border-rose-500 shadow-2xs";
+          sensorBadge.innerText = "STATE: DETEKSI";
+        } else {
+          iconBg.className =
+            "relative z-10 w-20 h-20 rounded-2xl bg-white text-slate-500 border-2 border-slate-200 flex items-center justify-center shadow-md transition-all duration-300";
+          aura.classList.add("hidden");
+
+          ledDo.className =
+            "w-2.5 h-2.5 rounded-full bg-slate-300 transition-all duration-300";
+
+          stateText.innerText = data.normalText;
+          stateText.className =
+            "text-xs font-black text-slate-800 uppercase tracking-wide";
+          subText.innerText = "Kondisi Standby / Normal";
+
+          btnSim.className =
+            "w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-extrabold text-xs rounded-xl shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border border-blue-400/30";
+          btnIcon.className = "fa-solid fa-toggle-off text-base text-blue-200";
+          btnText.innerText = "Aktifkan Pemicu Sensor (Toggle)";
+
+          if (isActiveLow) {
+            pinBadge.className =
+              "flex-1 py-1 rounded bg-white text-slate-700 font-bold border border-slate-200 shadow-2xs";
+            pinBadge.innerText = "GPIO 2: 1";
+          } else {
+            pinBadge.className =
+              "flex-1 py-1 rounded bg-white text-slate-700 font-bold border border-slate-200 shadow-2xs";
+            pinBadge.innerText = "GPIO 2: 0";
+          }
+
+          sensorBadge.className =
+            "flex-1 py-1 rounded bg-white text-slate-700 font-bold border border-slate-200 shadow-2xs";
+          sensorBadge.innerText = "STATE: STANDBY";
+        }
+      }
+
+      function toggleSensorTrigger() {
+        isSensorTriggered = !isSensorTriggered;
+        updateSensorVisualState(isSensorTriggered);
+      }
+
+      function renderPythonSyntax(code) {
+        const lines = code.split("\n");
+        let htmlResult =
+          '<div class="table w-full border-collapse font-mono text-xs sm:text-sm">';
+
+        lines.forEach((line, index) => {
+          let comment = "";
+          let codePart = line;
+
+          const commentIdx = line.indexOf("#");
+          if (commentIdx !== -1) {
+            codePart = line.substring(0, commentIdx);
+            comment = `<span class="text-slate-400 italic font-normal">${escapeHtml(line.substring(commentIdx))}</span>`;
+          }
+
+          codePart = escapeHtml(codePart);
+
+          codePart = codePart
+            .replace(
+              /\b(from|import|def|while|True|False|return|class|in)\b/g,
+              '<span class="text-[#2563eb] font-bold">$1</span>',
+            )
+            .replace(
+              /\b(Pin|time|sleep|print|value)\b/g,
+              '<span class="text-[#0284c7] font-semibold">$1</span>',
+            )
+            .replace(
+              /\b(OUT|IN)\b/g,
+              '<span class="text-[#d97706] font-bold">$1</span>',
+            )
+            .replace(
+              /\b(\d+)\b/g,
+              '<span class="text-[#059669] font-medium">$1</span>',
+            );
+
+          htmlResult += `
+            <div class="table-row hover:bg-slate-50">
+              <div class="table-cell text-right select-none pr-3.5 text-slate-400 font-mono text-xs w-7 border-r border-slate-200 py-0.5">${index + 1}</div>
+              <div class="table-cell pl-3.5 whitespace-pre font-mono text-slate-900 py-0.5">${codePart}${comment}</div>
+            </div>`;
+        });
+
+        htmlResult += "</div>";
+        return htmlResult;
+      }
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function printLiveLog(logText) {
+        const monitor = document.getElementById("serialMonitorOutput");
+        const line = document.createElement("div");
+        line.className = "text-xs font-mono text-slate-900";
+        line.innerHTML = `<span class="text-slate-400">&gt;&gt;&gt;</span> ${escapeHtml(logText)}`;
+        monitor.appendChild(line);
+        monitor.scrollTop = monitor.scrollHeight;
+      }
+
+      function startSimulationLoop() {
+        isProgramRunning = true;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        monitor.innerHTML = `<div class="text-slate-500 font-mono text-xs">%Run ${missions[currentMissionKey].filename}</div>`;
+
+        liveTimer = setInterval(() => {
+          if (!isProgramRunning) return;
+
+          if (currentMissionKey === 1) {
+            if (isSensorTriggered)
+              printLiveLog("LDR: TERANG | Sinyal: 0 (Cahaya Terdeteksi)");
+            else printLiveLog("LDR: GELAP  | Sinyal: 1 (Kondisi Gelap)");
+          } else if (currentMissionKey === 2) {
+            if (isSensorTriggered)
+              printLiveLog("GETARAN: TERDETEKSI! | Sinyal: 0 (Ada Guncangan)");
+            else
+              printLiveLog(
+                "GETARAN: TENANG      | Sinyal: 1 (Tidak Ada Getaran)",
+              );
+          } else if (currentMissionKey === 3) {
+            if (isSensorTriggered)
+              printLiveLog("IR: OBJEK TERDETEKSI! | Sinyal: 0 (Ada Halangan)");
+            else
+              printLiveLog(
+                "IR: AREA BEBAS        | Sinyal: 1 (Tidak Ada Objek)",
+              );
+          } else if (currentMissionKey === 4) {
+            if (isSensorTriggered)
+              printLiveLog("FLAME: API TERDETEKSI! [BAHAYA] | Sinyal: 0");
+            else printLiveLog("FLAME: AMAN                     | Sinyal: 1");
+          } else if (currentMissionKey === 5) {
+            if (isSensorTriggered)
+              printLiveLog(
+                "MQ-2: GAS/ASAP TERDETEKSI! | Sinyal: 0 (Peringatan)",
+              );
+            else
+              printLiveLog("MQ-2: UDARA BERSIH         | Sinyal: 1 (Normal)");
+          } else if (currentMissionKey === 6) {
+            if (isSensorTriggered)
+              printLiveLog("PIR: GERAKAN TERDETEKSI! | Sinyal: 1");
+            else printLiveLog("PIR: TIDAK ADA GERAKAN   | Sinyal: 0");
+          }
+        }, 400);
+      }
+
+      function uploadAndRun() {
+        if (isUploading) return;
+        isUploading = true;
+
+        stopProgramSilently();
+
+        const statusText = document.getElementById("ideStatusText");
+        const btnUpload = document.getElementById("btnUpload");
+
+        btnUpload.disabled = true;
+        btnUpload.classList.add("opacity-50", "cursor-not-allowed");
+
+        statusText.innerHTML = `<span class="text-amber-600 font-bold"><i class="fa-solid fa-spinner animate-spin mr-1"></i>Running script...</span>`;
+
+        setTimeout(() => {
+          statusText.innerHTML = `MicroPython v1.23.0 | Sensor Pin: GPIO 2`;
+          btnUpload.disabled = false;
+          btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
+          isUploading = false;
+
+          startSimulationLoop();
+        }, 300);
+      }
+
+      function stopProgramSilently() {
+        isProgramRunning = false;
+        if (liveTimer) {
+          clearInterval(liveTimer);
+          liveTimer = null;
+        }
+        isSensorTriggered = false;
+        updateSensorVisualState(false);
+        isUploading = false;
+      }
+
+      function stopProgram() {
+        stopProgramSilently();
+
+        const btnUpload = document.getElementById("btnUpload");
+        btnUpload.disabled = false;
+        btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
+
+        const statusText = document.getElementById("ideStatusText");
+        statusText.innerHTML = `MicroPython v1.23.0 | Sensor Pin: GPIO 2`;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        const line = document.createElement("div");
+        line.className = "text-rose-600 font-mono text-xs italic mt-1";
+        line.innerText =
+          'Traceback (most recent call last):\n  File "<stdin>", line 1\nKeyboardInterrupt';
+        monitor.appendChild(line);
+      }
+
+      function clearSerialMonitor() {
+        document.getElementById("serialMonitorOutput").innerHTML =
+          `<div class="text-slate-400 italic">&gt;&gt;&gt; [Shell Cleared]</div>`;
+      }
+
+      function selectMission(num) {
+        document.querySelectorAll(".mission-btn").forEach((btn) => {
+          btn.className =
+            "mission-btn p-3 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-left transition flex flex-col justify-between h-20 cursor-pointer";
+          btn.querySelector("span").className =
+            "text-[10px] font-black uppercase text-slate-400 tracking-wider";
+          btn.querySelector("i").className = btn
+            .querySelector("i")
+            .className.replace("text-blue-600", "text-slate-400");
+          btn.querySelector(".font-bold").className =
+            "font-bold text-xs text-slate-800 truncate";
+          btn.querySelectorAll("div")[2].className =
+            "text-[10px] text-slate-500 truncate";
+        });
+
+        const activeBtn = document.getElementById(`btn-misi-${num}`);
+        activeBtn.className =
+          "mission-btn p-3 rounded-xl border-2 border-blue-600 bg-blue-50/70 text-left transition flex flex-col justify-between h-20 shadow-xs cursor-pointer";
+        activeBtn.querySelector("span").className =
+          "text-[10px] font-black uppercase text-blue-700 tracking-wider";
+        activeBtn.querySelector("i").className = activeBtn
+          .querySelector("i")
+          .className.replace("text-slate-400", "text-blue-600");
+        activeBtn.querySelector(".font-bold").className =
+          "font-bold text-xs text-slate-900 truncate";
+        activeBtn.querySelectorAll("div")[2].className =
+          "text-[10px] text-slate-600 truncate";
+
+        updateView(num);
+      }
+
+      function updateView(num) {
+        stopProgramSilently();
+        currentMissionKey = num;
+
+        const data = missions[num];
+
+        const imgEl = document.getElementById("schemaImage");
+        imgEl.src = data.imgSrc;
+        imgEl.onerror = () => {
+          imgEl.src = `2.4.${num}.png`;
+        };
+
+        document.getElementById("moduleBoardLabel").innerText =
+          data.moduleLabel;
+        document.getElementById("ideTitle").innerText = data.filename;
+        document.getElementById("codeDisplay").innerHTML = renderPythonSyntax(
+          data.rawCode,
+        );
+        document.getElementById("mission-title").innerText = data.title;
+        document.getElementById("mission-goal").innerHTML = data.desc;
+        document.getElementById("mission-icon").className =
+          `fa-solid ${data.icon}`;
+        document.getElementById("sensorVisualIcon").className =
+          `fa-solid ${data.icon} text-3xl`;
+
+        updateSensorVisualState(false);
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        monitor.innerHTML = `<div class="text-slate-400 italic">&gt;&gt;&gt; [REPL Ready. Klik tombol Play (Hijau) di toolbar Thonny untuk menjalankan script]</div>`;
+      }
+
+      function copyCode() {
+        const rawCodeText = missions[currentMissionKey].rawCode;
+        navigator.clipboard.writeText(rawCodeText).then(() => {
+          const btnText = document.getElementById("btnCopyText");
+          const btnIcon = document.getElementById("btnCopyIcon");
+
+          btnText.innerText = "Tersalin!";
+          btnIcon.className = "fa-solid fa-check text-emerald-600";
+
+          setTimeout(() => {
+            btnText.innerText = "Salin Kode";
+            btnIcon.className = "fa-solid fa-copy text-slate-600";
+          }, 2000);
+        });
+      }
+
+      window.onload = function () {
+        selectMission(1);
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sub 2.2 - Sakelar LED MicroPython ESP32</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      body {
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased pb-10"
+  >
+    <!-- HEADER APP (BLUE THEME) -->
+    <header
+      class="bg-blue-900 border-b border-blue-800 text-white sticky top-0 z-40 shadow-sm"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3">
+          <a
+            href="index.html"
+            class="w-9 h-9 rounded-xl bg-blue-800 hover:bg-blue-700 text-blue-100 border border-blue-700 flex items-center justify-center text-sm transition-colors"
+            title="Kembali"
+          >
+            <i class="fa-solid fa-home"></i>
+          </a>
+          <div>
+            <div class="flex items-center gap-2">
+              <span
+                class="text-[10px] font-extrabold bg-blue-800 text-blue-200 border border-blue-700 px-2 py-0.5 rounded uppercase tracking-wider"
+              >
+                SUB 2.2 - MICROPYTHON
+              </span>
+            </div>
+            <h1
+              class="text-sm sm:text-base font-bold text-white leading-tight mt-0.5"
+            >
+              Sakelar LED: Input Push Button & Output LED
+            </h1>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <!-- HERO BANNER BLUE -->
+      <section
+        class="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden border border-blue-800"
+      >
+        <div
+          class="absolute -right-4 -bottom-6 opacity-10 pointer-events-none hidden sm:block select-none"
+        >
+          <i class="fa-solid fa-toggle-on text-[140px] text-white"></i>
+        </div>
+        <div class="relative z-10 space-y-1.5 max-w-3xl">
+          <div
+            class="inline-flex items-center gap-2 bg-blue-800/80 border border-blue-700 text-blue-100 px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md"
+          >
+            <i class="fa-solid fa-microchip text-blue-300 text-xs"></i>
+            <span>Praktik Input & Output Digital MicroPython</span>
+          </div>
+          <h2
+            class="text-lg sm:text-xl font-extrabold text-white leading-tight display-font"
+          >
+            Pembacaan Push Button & Pengendalian LED ESP32
+          </h2>
+          <p
+            class="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-normal"
+          >
+            Pelajari integrasi input sakelar mekanis menggunakan
+            <code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >Pin(2, Pin.IN, Pin.PULL_UP)</code
+            >
+            untuk mengontrol output LED (<code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >Pin 3</code
+            >) secara interaktif via MicroPython.
+          </p>
+        </div>
+      </section>
+
+      <!-- SKEMA RANGKAIAN & VISUAL HARDWARE -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- GAMBAR RANGKAIAN (2 Kolom) -->
+        <div
+          class="md:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between"
+        >
+          <div
+            class="w-full flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-diagram-project text-blue-600"></i> Skema
+              Rangkaian ESP32
+            </h2>
+            <span
+              class="text-xs font-semibold text-blue-800 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md"
+            >
+              Button: GPIO 2 | LED: GPIO 3
+            </span>
+          </div>
+
+          <div
+            class="w-full bg-slate-50 p-3 sm:p-5 rounded-xl border border-slate-200 flex items-center justify-center min-h-[220px]"
+          >
+            <img
+              src="img/modul02/2.3.1.png"
+              alt="Skema Rangkaian Sakelar LED ESP32 Pin 2 dan Pin 3"
+              class="max-h-[260px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs"
+              onerror="
+                this.onerror = null;
+                this.src = '2.3.1.png';
+              "
+            />
+          </div>
+        </div>
+
+        <!-- SIMULATOR VISUAL HARDWARE INTERAKTIF (1 Kolom) -->
+        <div
+          class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between items-center text-center overflow-hidden"
+        >
+          <div
+            class="w-full border-b border-slate-100 pb-2.5 flex items-center justify-between mb-2"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-microchip text-blue-600"></i> Visual
+              Hardware
+            </h2>
+            <span
+              class="text-[10px] font-bold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded"
+              >INTERAKTIF</span
+            >
+          </div>
+
+          <!-- CONTAINER SVG SIMULATOR HARDWARE -->
+          <div
+            class="relative w-full h-full min-h-[220px] bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center overflow-hidden border border-slate-200 shadow-xs my-auto"
+          >
+            <div
+              class="absolute inset-0 opacity-30 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:16px_16px]"
+            ></div>
+
+            <!-- SVG HARDWARE (PUSH BUTTON + LED BENING) -->
+            <svg
+              viewBox="0 0 240 140"
+              class="w-56 h-36 z-10 filter drop-shadow-md select-none"
+            >
+              <defs>
+                <radialGradient id="ledGlowOff" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ef4444" stop-opacity="0" />
+                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
+                </radialGradient>
+                <radialGradient id="ledGlowOn" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ff6b6b" stop-opacity="0.9" />
+                  <stop offset="50%" stop-color="#ef4444" stop-opacity="0.6" />
+                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient
+                  id="lensReflect"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+                  <stop offset="40%" stop-color="#ffffff" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.3" />
+                </linearGradient>
+              </defs>
+
+              <!-- BAGIAN 1: PUSH BUTTON HARDWARE -->
+              <g id="svgBtnGroup" class="cursor-pointer">
+                <rect
+                  x="30"
+                  y="45"
+                  width="60"
+                  height="60"
+                  rx="6"
+                  fill="#334155"
+                  stroke="#1e293b"
+                  stroke-width="2"
+                />
+                <rect
+                  x="24"
+                  y="55"
+                  width="6"
+                  height="12"
+                  rx="1"
+                  fill="#94a3b8"
+                />
+                <rect
+                  x="24"
+                  y="83"
+                  width="6"
+                  height="12"
+                  rx="1"
+                  fill="#94a3b8"
+                />
+                <rect
+                  x="90"
+                  y="55"
+                  width="6"
+                  height="12"
+                  rx="1"
+                  fill="#94a3b8"
+                />
+                <rect
+                  x="90"
+                  y="83"
+                  width="6"
+                  height="12"
+                  rx="1"
+                  fill="#94a3b8"
+                />
+                <circle cx="60" cy="75" r="22" fill="#64748b" />
+                <circle
+                  id="svgBtnCap"
+                  cx="60"
+                  cy="75"
+                  r="17"
+                  fill="#0284c7"
+                  stroke="#0369a1"
+                  stroke-width="2"
+                  class="transition-all duration-100"
+                />
+              </g>
+
+              <!-- BAGIAN 2: LED HARDWARE -->
+              <g transform="translate(60,0)">
+                <rect
+                  x="111"
+                  y="75"
+                  width="4"
+                  height="45"
+                  fill="#64748b"
+                  rx="1"
+                />
+                <rect
+                  x="125"
+                  y="75"
+                  width="4"
+                  height="45"
+                  fill="#94a3b8"
+                  rx="1"
+                />
+                <circle
+                  id="svgGlow"
+                  cx="120"
+                  cy="50"
+                  r="38"
+                  fill="url(#ledGlowOff)"
+                  class="transition-all duration-300"
+                />
+                <path
+                  id="svgLedBody"
+                  d="M 100 50 A 20 20 0 0 1 140 50 L 140 70 A 2 2 0 0 1 138 72 L 102 72 A 2 2 0 0 1 100 70 Z"
+                  fill="#cbd5e1"
+                  fill-opacity="0.6"
+                  stroke="#94a3b8"
+                  stroke-width="1.5"
+                  class="transition-colors duration-300"
+                />
+                <path
+                  d="M 110 60 L 115 50 L 118 60 Z"
+                  fill="#ef4444"
+                  opacity="0.8"
+                />
+                <path
+                  d="M 125 60 L 125 53 Z"
+                  stroke="#ef4444"
+                  stroke-width="2"
+                  opacity="0.8"
+                />
+                <path
+                  d="M 100 50 A 20 20 0 0 1 140 50 L 140 70 A 2 2 0 0 1 138 72 L 102 72 A 2 2 0 0 1 100 70 Z"
+                  fill="url(#lensReflect)"
+                />
+              </g>
+            </svg>
+
+            <!-- SIMULATOR BUTTON CONTROL -->
+            <div class="z-10 mt-2 flex flex-col items-center gap-2 w-full">
+              <button
+                id="btnPhysicalSim"
+                onmousedown="pressSimButton()"
+                onmouseup="releaseSimButton()"
+                mouseleave="releaseSimButton()"
+                ontouchstart="pressSimButton()"
+                ontouchend="releaseSimButton()"
+                class="w-full py-2 px-4 bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-extrabold text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer select-none"
+              >
+                <i class="fa-solid fa-fingerprint text-base"></i>
+                <span id="btnPhysicalSimText">Tekan Push Button</span>
+              </button>
+
+              <div class="flex items-center gap-2 w-full text-[10px] font-mono">
+                <span
+                  id="btnStatusBadge"
+                  class="flex-1 py-1 rounded bg-slate-200 text-slate-700 font-bold border border-slate-300"
+                >
+                  BTN: 1 (LEPAS)
+                </span>
+                <span
+                  id="ledStatusBadge"
+                  class="flex-1 py-1 rounded bg-slate-200 text-slate-700 font-bold border border-slate-300"
+                >
+                  LED: 0 (MATI)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SELEKTOR MISI PRAKTIKUM -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3
+            class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-gamepad text-blue-600"></i> Pilih Misi
+            Praktikum MicroPython
+          </h3>
+          <span
+            class="text-xs font-bold text-blue-800 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full"
+          >
+            2 Misi Sakelar
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            onclick="selectMission(1)"
+            id="btn-misi-1"
+            class="mission-btn p-3.5 rounded-xl border-2 border-blue-600 bg-blue-50/70 text-left transition flex flex-col justify-between h-24 shadow-xs cursor-pointer"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] font-black uppercase text-blue-700 tracking-wider"
+                >Misi 1</span
+              >
+              <i class="fa-solid fa-hand-pointer text-blue-600"></i>
+            </div>
+            <div class="font-bold text-xs sm:text-sm text-slate-900">
+              Sakelar Momentary
+            </div>
+            <div class="text-[11px] text-slate-600">
+              Tekan = Nyala Merah, Lepas = Mati Bening
+            </div>
+          </button>
+
+          <button
+            onclick="selectMission(2)"
+            id="btn-misi-2"
+            class="mission-btn p-3.5 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-left transition flex flex-col justify-between h-24 cursor-pointer"
+          >
+            <div class="flex justify-between items-center">
+              <span
+                class="text-[10px] font-black uppercase text-slate-400 tracking-wider"
+                >Misi 2</span
+              >
+              <i class="fa-solid fa-toggle-on text-slate-400"></i>
+            </div>
+            <div class="font-bold text-xs sm:text-sm text-slate-800">
+              Sakelar Toggle (ON/OFF)
+            </div>
+            <div class="text-[11px] text-slate-500">
+              Setiap tekan ubah status LED Merah
+            </div>
+          </button>
+        </div>
+
+        <div
+          id="mission-description-box"
+          class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs sm:text-sm text-blue-950 flex items-start gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 font-bold text-sm"
+          >
+            <i id="mission-icon" class="fa-solid fa-hand-pointer"></i>
+          </div>
+          <div class="space-y-1">
+            <div id="mission-title" class="font-bold">
+              Misi 1: Sakelar Momentary (Tekan Nyala, Lepas Mati)
+            </div>
+            <p id="mission-goal" class="text-slate-700 text-xs">
+              <strong>Tugas Kamu:</strong> Klik tombol
+              <strong class="text-emerald-700"
+                ><i class="fa-solid fa-circle-play"></i> Run</strong
+              >
+              di Thonny IDE, lalu gunakan tombol interaktif
+              <strong>"Tekan Push Button"</strong> di atas untuk melihat LED
+              menyala merah saat ditekan dan kembali bening saat dilepas.
+            </p>
+          </div>
+        </div>
+
+        <!-- THONNY IDE CONTAINER -->
+        <div
+          class="rounded-xl overflow-hidden shadow-xs border border-slate-300 bg-white font-sans"
+        >
+          <!-- TOOLBAR OTENTIK THONNY -->
+          <div
+            class="bg-slate-200 border-b border-slate-300 px-3 py-1.5 flex items-center justify-between select-none"
+          >
+            <div class="flex items-center gap-1 sm:gap-2">
+              <button
+                title="New File"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-file text-sm"></i>
+              </button>
+              <button
+                title="Open..."
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-folder-open text-sm"></i>
+              </button>
+              <button
+                title="Save"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-floppy-disk text-sm"></i>
+              </button>
+
+              <div class="h-4 w-[1px] bg-slate-400 mx-1"></div>
+
+              <!-- RUN BUTTON (PLAY HIJAU THONNY) -->
+              <button
+                id="btnUpload"
+                onclick="uploadAndRun()"
+                title="Run current script (F5)"
+                class="w-7 h-7 rounded bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center transition cursor-pointer shadow-2xs"
+              >
+                <i class="fa-solid fa-play text-xs"></i>
+              </button>
+
+              <button
+                title="Debug script"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-600 flex items-center justify-center transition"
+              >
+                <i class="fa-solid fa-bug text-xs"></i>
+              </button>
+
+              <button
+                id="btnStop"
+                onclick="stopProgram()"
+                title="Stop / Restart backend (Ctrl+F2)"
+                class="w-7 h-7 rounded bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center transition cursor-pointer shadow-2xs"
+              >
+                <i class="fa-solid fa-stop text-xs"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                id="btnCopy"
+                onclick="copyCode()"
+                class="bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold px-2.5 py-1 rounded flex items-center gap-1.5 transition border border-slate-300 cursor-pointer shadow-2xs"
+              >
+                <i id="btnCopyIcon" class="fa-solid fa-copy text-slate-600"></i>
+                <span id="btnCopyText" class="hidden sm:inline"
+                  >Salin Kode</span
+                >
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB HEADER THONNY -->
+          <div
+            class="bg-slate-100 border-b border-slate-200 px-3 py-1 flex items-center justify-between text-slate-700 text-xs select-none"
+          >
+            <div class="flex items-center gap-1">
+              <div
+                class="bg-white px-3 py-1 rounded-t border-t-2 border-t-blue-600 border-x border-slate-300 text-slate-900 font-mono text-xs font-semibold flex items-center gap-2"
+              >
+                <i class="fa-regular fa-file-code text-blue-600"></i>
+                <span id="ideTitle">misi1_momentary.py</span>
+              </div>
+            </div>
+            <div class="font-mono text-[11px] text-slate-500">
+              MicroPython (ESP32)
+            </div>
+          </div>
+
+          <!-- EDITOR AREA -->
+          <div class="flex min-h-[220px]">
+            <div class="p-3 sm:p-4 overflow-x-auto w-full bg-white">
+              <div
+                id="codeDisplay"
+                class="font-mono text-xs sm:text-sm leading-relaxed"
+              ></div>
+            </div>
+          </div>
+
+          <!-- REPL SHELL THONNY -->
+          <div class="border-t border-slate-300 bg-slate-50">
+            <div
+              class="bg-slate-200 border-b border-slate-300 px-3 py-1 flex items-center justify-between text-slate-700 text-xs font-semibold select-none"
+            >
+              <div class="flex items-center gap-2 font-mono">
+                <i class="fa-solid fa-terminal text-slate-600 text-[11px]"></i>
+                <span>Shell (MicroPython REPL)</span>
+              </div>
+              <button
+                onclick="clearSerialMonitor()"
+                class="text-[11px] font-sans hover:text-slate-900 text-slate-500 underline cursor-pointer"
+              >
+                Clear Shell
+              </button>
+            </div>
+
+            <div
+              class="p-3 bg-white min-h-[140px] max-h-[180px] overflow-y-auto font-mono text-xs text-slate-900 space-y-1"
+              id="serialMonitorOutput"
+            >
+              <div class="text-slate-400 italic">
+                MicroPython v1.23.0 on ESP32<br />
+                Type "help()" for more information.<br />
+                &gt;&gt;&gt; [REPL Ready. Klik tombol Play (Hijau) di toolbar
+                Thonny untuk menjalankan script]
+              </div>
+            </div>
+          </div>
+
+          <!-- STATUS BAR THONNY -->
+          <div
+            class="bg-slate-200 px-3 py-1 text-[11px] text-slate-700 flex justify-between items-center font-sans border-t border-slate-300 select-none"
+          >
+            <span class="flex items-center gap-1.5" id="ideStatusContainer">
+              <span
+                class="w-2 h-2 rounded-full bg-emerald-600 inline-block animate-pulse"
+              ></span>
+              <span id="ideStatusText" class="font-mono"
+                >MicroPython v1.23.0 | Button: GPIO 2 | LED: GPIO 3</span
+              >
+            </span>
+            <span class="font-mono text-[11px] text-slate-800 font-semibold"
+              >MicroPython (ESP32) • COM3</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- NAVIGATION FOOTER -->
+      <nav class="flex items-center justify-between pt-2">
+        <a
+          href="2.1.html"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-xs transition-colors shadow-2xs"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Sub 2.1: Output LED</span>
+        </a>
+        <a
+          href="2.3.html"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-bold text-xs transition-colors shadow-xs"
+        >
+          <span>Sub 2.3: Sensor Digital</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </nav>
+    </main>
+
+    <footer
+      class="max-w-6xl mx-auto w-full px-4 pt-4 text-center text-xs text-slate-500 font-medium"
+    >
+      <p>
+        © MIKRO EDU - SMK SMTI Yogyakarta | Teknik Mekatronika
+      </p>
+    </footer>
+
+    <!-- LOGIKA JAVASCRIPT MICROPYTHON THONNY -->
+    <script>
+      const missions = {
+        1: {
+          filename: "misi1_momentary.py",
+          title: "Misi 1: Sakelar Momentary (Tekan Nyala)",
+          icon: "fa-hand-pointer",
+          desc: "<strong>Tugas 1:</strong> Gunakan resistor pull-up internal pada Pin 2 (<code class='font-mono font-bold text-blue-700'>Pin.PULL_UP</code>). Saat ditekan bernilai 0 (LOW), LED merah pada Pin 3 akan menyala.",
+          rawCode: `# --- MISI 1: SAKELAR MOMENTARY (TEKAN NYALA MERAH) ---
+from machine import Pin
+import time
+
+pin_button = Pin(2, Pin.IN, Pin.PULL_UP)  # Tombol pada GPIO 2 (Pull-up)
+pin_led = Pin(4, Pin.OUT)                # LED Merah pada GPIO 3
+
+print("Program Sakelar Momentary Dimulai...")
+
+while True:
+    status_tombol = pin_button.value()  # Baca nilai sakelar (0 atau 1)
+
+    if status_tombol == 0:  # Tombol sedang ditekan (Aktif LOW)
+        pin_led.value(1)
+        print("Tombol: DITEKAN (0) | LED: ON (1)")
+    else:
+        pin_led.value(0)
+        print("Tombol: DILEPAS  (1) | LED: OFF (0)")
+    
+    time.sleep(0.3)  # Jeda pembacaan
+`,
+        },
+        2: {
+          filename: "misi2_toggle.py",
+          title: "Misi 2: Sakelar Toggle (ON/OFF)",
+          icon: "fa-toggle-on",
+          desc: "<strong>Tugas 2:</strong> Buat program toggle. Setiap kali Push Button ditekan satu kali, status LED merah akan berganti antara menyala dan mati bening.",
+          rawCode: `# --- MISI 2: SAKELAR TOGGLE (ON / OFF) ---
+from machine import Pin
+import time
+
+pin_button = Pin(2, Pin.IN, Pin.PULL_UP)
+pin_led = Pin(4, Pin.OUT)
+
+status_led = False
+status_tombol_lama = 1
+
+print("Program Sakelar Toggle Dimulai...")
+
+while True:
+    status_tombol_sekarang = pin_button.value()
+
+    # Deteksi perubahan dari dilepas (1) menjadi ditekan (0)
+    if status_tombol_lama == 1 and status_tombol_sekarang == 0:
+        status_led = not status_led  # Balik status LED
+        pin_led.value(1 if status_led else 0)
+
+        if status_led:
+            print("Tombol Ditekan! Status LED Sekarang: NYALA MERAH (1)")
+        else:
+            print("Tombol Ditekan! Status LED Sekarang: MATI BENING (0)")
+
+        time.sleep(0.2)  # Debounce sederhana
+
+    status_tombol_lama = status_tombol_sekarang
+`,
+        },
+      };
+
+      let currentMissionKey = 1;
+      let isProgramRunning = false;
+      let isUploading = false;
+      let isButtonPressed = false;
+      let toggleLedState = false;
+      let liveTimer = null;
+
+      function setLedVisualState(isOn) {
+        const glow = document.getElementById("svgGlow");
+        const body = document.getElementById("svgLedBody");
+        const badge = document.getElementById("ledStatusBadge");
+
+        if (isOn) {
+          glow.setAttribute("fill", "url(#ledGlowOn)");
+          body.setAttribute("fill", "#ef4444");
+          body.setAttribute("fill-opacity", "0.9");
+          body.setAttribute("stroke", "#b91c1c");
+          badge.className =
+            "flex-1 py-1 rounded bg-red-600 text-white font-bold border border-red-700 shadow-[0_0_8px_rgba(239,68,68,0.5)]";
+          badge.innerText = "LED: 1 (NYALA MERAH)";
+        } else {
+          glow.setAttribute("fill", "url(#ledGlowOff)");
+          body.setAttribute("fill", "#cbd5e1");
+          body.setAttribute("fill-opacity", "0.6");
+          body.setAttribute("stroke", "#94a3b8");
+          badge.className =
+            "flex-1 py-1 rounded bg-slate-200 text-slate-700 font-bold border border-slate-300";
+          badge.innerText = "LED: 0 (MATI BENING)";
+        }
+      }
+
+      function setButtonVisualState(isPressed) {
+        const cap = document.getElementById("svgBtnCap");
+        const badge = document.getElementById("btnStatusBadge");
+        const simBtnText = document.getElementById("btnPhysicalSimText");
+
+        if (isPressed) {
+          cap.setAttribute("r", "14");
+          cap.setAttribute("fill", "#0369a1");
+          badge.className =
+            "flex-1 py-1 rounded bg-amber-500 text-white font-bold border border-amber-600 shadow-[0_0_8px_rgba(245,158,11,0.4)]";
+          badge.innerText = "BTN: 0 (TEKAN)";
+          simBtnText.innerText = "Sedang Ditekan...";
+        } else {
+          cap.setAttribute("r", "17");
+          cap.setAttribute("fill", "#0284c7");
+          badge.className =
+            "flex-1 py-1 rounded bg-slate-200 text-slate-700 font-bold border border-slate-300";
+          badge.innerText = "BTN: 1 (LEPAS)";
+          simBtnText.innerText = "Tekan Push Button";
+        }
+      }
+
+      function pressSimButton() {
+        isButtonPressed = true;
+        setButtonVisualState(true);
+
+        if (!isProgramRunning) return;
+
+        if (currentMissionKey === 2) {
+          toggleLedState = !toggleLedState;
+          setLedVisualState(toggleLedState);
+
+          if (toggleLedState) {
+            printLiveLog(
+              "Tombol Ditekan! Status LED Sekarang: NYALA MERAH (1)",
+            );
+          } else {
+            printLiveLog(
+              "Tombol Ditekan! Status LED Sekarang: MATI BENING (0)",
+            );
+          }
+        }
+      }
+
+      function releaseSimButton() {
+        if (!isButtonPressed) return;
+        isButtonPressed = false;
+        setButtonVisualState(false);
+
+        if (!isProgramRunning) return;
+
+        if (currentMissionKey === 1) {
+          setLedVisualState(false);
+        }
+      }
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function renderPythonSyntax(code) {
+        const lines = code.split("\n");
+        let htmlResult =
+          '<div class="table w-full border-collapse font-mono text-xs sm:text-sm">';
+
+        lines.forEach((line, index) => {
+          let comment = "";
+          let codePart = line;
+
+          const commentIdx = line.indexOf("#");
+          if (commentIdx !== -1) {
+            codePart = line.substring(0, commentIdx);
+            comment = `<span class="text-slate-400 italic font-normal">${escapeHtml(line.substring(commentIdx))}</span>`;
+          }
+
+          codePart = escapeHtml(codePart);
+
+          codePart = codePart
+            .replace(
+              /\b(from|import|def|while|True|False|return|class|in)\b/g,
+              '<span class="text-[#2563eb] font-bold">$1</span>',
+            )
+            .replace(
+              /\b(Pin|time|sleep|print|value)\b/g,
+              '<span class="text-[#0284c7] font-semibold">$1</span>',
+            )
+            .replace(
+              /\b(OUT|IN|PULL_UP)\b/g,
+              '<span class="text-[#d97706] font-bold">$1</span>',
+            )
+            .replace(
+              /\b(\d+)\b/g,
+              '<span class="text-[#059669] font-medium">$1</span>',
+            );
+
+          htmlResult += `
+            <div class="table-row hover:bg-slate-50">
+              <div class="table-cell text-right select-none pr-3.5 text-slate-400 font-mono text-xs w-7 border-r border-slate-200 py-0.5">${index + 1}</div>
+              <div class="table-cell pl-3.5 whitespace-pre font-mono text-slate-900 py-0.5">${codePart}${comment}</div>
+            </div>`;
+        });
+
+        htmlResult += "</div>";
+        return htmlResult;
+      }
+
+      function printLiveLog(logText) {
+        const monitor = document.getElementById("serialMonitorOutput");
+        const line = document.createElement("div");
+        line.className = "text-xs font-mono text-slate-900";
+        line.innerHTML = `<span class="text-slate-400">&gt;&gt;&gt;</span> ${escapeHtml(logText)}`;
+        monitor.appendChild(line);
+        monitor.scrollTop = monitor.scrollHeight;
+      }
+
+      function startSimulationLoop() {
+        isProgramRunning = true;
+        toggleLedState = false;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        monitor.innerHTML = `<div class="text-slate-500 font-mono text-xs">%Run ${missions[currentMissionKey].filename}</div>`;
+
+        if (currentMissionKey === 1) {
+          liveTimer = setInterval(() => {
+            if (!isProgramRunning) return;
+            if (isButtonPressed) {
+              setLedVisualState(true);
+              printLiveLog("Tombol: DITEKAN (0) | LED: ON (1)");
+            } else {
+              setLedVisualState(false);
+              printLiveLog("Tombol: DILEPAS  (1) | LED: OFF (0)");
+            }
+          }, 300);
+        } else if (currentMissionKey === 2) {
+          printLiveLog(
+            "[Petunjuk: Klik tombol 'Tekan Push Button' untuk mengubah status LED Merah]",
+          );
+        }
+      }
+
+      function uploadAndRun() {
+        if (isUploading) return;
+        isUploading = true;
+
+        stopProgramSilently();
+
+        const statusText = document.getElementById("ideStatusText");
+        const btnUpload = document.getElementById("btnUpload");
+
+        btnUpload.disabled = true;
+        btnUpload.classList.add("opacity-50", "cursor-not-allowed");
+
+        statusText.innerHTML = `<span class="text-amber-600 font-bold"><i class="fa-solid fa-spinner animate-spin mr-1"></i>Running script...</span>`;
+
+        setTimeout(() => {
+          statusText.innerHTML = `MicroPython v1.23.0 | Button: GPIO 2 | LED: GPIO 3`;
+          btnUpload.disabled = false;
+          btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
+          isUploading = false;
+
+          startSimulationLoop();
+        }, 300);
+      }
+
+      function stopProgramSilently() {
+        isProgramRunning = false;
+        if (liveTimer) {
+          clearInterval(liveTimer);
+          liveTimer = null;
+        }
+        setLedVisualState(false);
+        setButtonVisualState(false);
+        isButtonPressed = false;
+        isUploading = false;
+      }
+
+      function stopProgram() {
+        stopProgramSilently();
+
+        const btnUpload = document.getElementById("btnUpload");
+        btnUpload.disabled = false;
+        btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
+
+        const statusText = document.getElementById("ideStatusText");
+        statusText.innerHTML = `MicroPython v1.23.0 | Button: GPIO 2 | LED: GPIO 3`;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        const line = document.createElement("div");
+        line.className = "text-rose-600 font-mono text-xs italic mt-1";
+        line.innerText =
+          'Traceback (most recent call last):\n  File "<stdin>", line 1\nKeyboardInterrupt';
+        monitor.appendChild(line);
+      }
+
+      function clearSerialMonitor() {
+        document.getElementById("serialMonitorOutput").innerHTML =
+          `<div class="text-slate-400 italic">&gt;&gt;&gt; [Shell Cleared]</div>`;
+      }
+
+      function selectMission(num) {
+        document.querySelectorAll(".mission-btn").forEach((btn) => {
+          btn.className =
+            "mission-btn p-3.5 rounded-xl border-2 border-slate-200 hover:border-slate-300 bg-white text-left transition flex flex-col justify-between h-24 cursor-pointer";
+          btn.querySelector("span").className =
+            "text-[10px] font-black uppercase text-slate-400 tracking-wider";
+          btn.querySelector("i").className = btn
+            .querySelector("i")
+            .className.replace("text-blue-600", "text-slate-400");
+          btn.querySelector(".font-bold").className =
+            "font-bold text-xs sm:text-sm text-slate-800";
+          btn.querySelector(".text-\\[11px\\]").className =
+            "text-[11px] text-slate-500";
+        });
+
+        const activeBtn = document.getElementById(`btn-misi-${num}`);
+        activeBtn.className =
+          "mission-btn p-3.5 rounded-xl border-2 border-blue-600 bg-blue-50/70 text-left transition flex flex-col justify-between h-24 shadow-xs cursor-pointer";
+        activeBtn.querySelector("span").className =
+          "text-[10px] font-black uppercase text-blue-700 tracking-wider";
+        activeBtn.querySelector("i").className = activeBtn
+          .querySelector("i")
+          .className.replace("text-slate-400", "text-blue-600");
+        activeBtn.querySelector(".font-bold").className =
+          "font-bold text-xs sm:text-sm text-slate-900";
+        activeBtn.querySelectorAll(".text-\\[11px\\]")[0].className =
+          "text-[11px] text-slate-600";
+
+        updateView(num);
+      }
+
+      function updateView(num) {
+        stopProgramSilently();
+        currentMissionKey = num;
+
+        const data = missions[num];
+
+        document.getElementById("ideTitle").innerText = data.filename;
+        document.getElementById("codeDisplay").innerHTML = renderPythonSyntax(
+          data.rawCode,
+        );
+        document.getElementById("mission-title").innerText = data.title;
+        document.getElementById("mission-goal").innerHTML = data.desc;
+        document.getElementById("mission-icon").className =
+          `fa-solid ${data.icon}`;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        monitor.innerHTML = `<div class="text-slate-400 italic">&gt;&gt;&gt; [REPL Ready. Klik tombol Play (Hijau) di toolbar Thonny untuk menjalankan script]</div>`;
+      }
+
+      function copyCode() {
+        const rawCodeText = missions[currentMissionKey].rawCode;
+        navigator.clipboard.writeText(rawCodeText).then(() => {
+          const btnText = document.getElementById("btnCopyText");
+          const btnIcon = document.getElementById("btnCopyIcon");
+
+          btnText.innerText = "Tersalin!";
+          btnIcon.className = "fa-solid fa-check text-emerald-600";
+
+          setTimeout(() => {
+            btnText.innerText = "Salin Kode";
+            btnIcon.className = "fa-solid fa-copy text-slate-600";
+          }, 2000);
+        });
+      }
+
+      window.onload = function () {
+        selectMission(1);
+
+        const svgBtn = document.getElementById("svgBtnGroup");
+        if (svgBtn) {
+          svgBtn.addEventListener("mousedown", pressSimButton);
+          svgBtn.addEventListener("mouseup", releaseSimButton);
+          svgBtn.addEventListener("mouseleave", releaseSimButton);
+          svgBtn.addEventListener("touchstart", pressSimButton);
+          svgBtn.addEventListener("touchend", releaseSimButton);
+        }
+      };
+    </script>
+  </body>
+</html>
