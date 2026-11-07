@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sub 3.1 - Output LED Analog PWM MicroPython ESP32</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- <style>
+      body {
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 9999px;
+      }
+    </style> -->
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased pb-10"
+  >
+    <!-- HEADER APP (BLUE THEME) -->
+    <header
+      class="bg-blue-900 border-b border-blue-800 text-white sticky top-0 z-40 shadow-sm"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3">
+          <a
+            href="index.html"
+            class="w-9 h-9 rounded-xl bg-blue-800 hover:bg-blue-700 text-blue-100 border border-blue-700 flex items-center justify-center text-sm transition-colors"
+            title="Kembali"
+          >
+            <i class="fa-solid fa-home"></i>
+          </a>
+          <div>
+            <div class="flex items-center gap-2">
+              <span
+                class="text-[10px] font-extrabold bg-blue-800 text-blue-200 border border-blue-700 px-2 py-0.5 rounded uppercase tracking-wider"
+              >
+                SUB 3.1 - MICROPYTHON
+              </span>
+            </div>
+            <h1
+              class="text-sm sm:text-base font-bold text-white leading-tight mt-0.5"
+            >
+              Output LED Analog: PWM & Gradasi Kecerahan
+            </h1>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <!-- HERO BANNER BLUE -->
+      <section
+        class="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden border border-blue-800"
+      >
+        <div
+          class="absolute -right-4 -bottom-6 opacity-10 pointer-events-none hidden sm:block select-none"
+        >
+          <i class="fa-solid fa-sliders text-[140px] text-white"></i>
+        </div>
+        <div class="relative z-10 space-y-1.5 max-w-3xl">
+          <div
+            class="inline-flex items-center gap-2 bg-blue-800/80 border border-blue-700 text-blue-100 px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md"
+          >
+            <i class="fa-solid fa-microchip text-blue-300 text-xs"></i>
+            <span>Praktik Output Analog PWM MicroPython</span>
+          </div>
+          <h2
+            class="text-lg sm:text-xl font-extrabold text-white leading-tight display-font"
+          >
+            Pengontrolan Tingkat Kecerahan LED (PWM ESP32)
+          </h2>
+          <p
+            class="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-normal"
+          >
+            Pelajari cara mengendalikan intensitas cahaya LED menggunakan Sinyal
+            PWM via modul
+            <code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >machine.PWM</code
+            >
+            dan metode
+            <code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >duty()</code
+            >
+            (rentang 0-1023) pada ESP32, mulai dari tingkatan Redup, Sedang,
+            Terang, hingga Transisi Otomatis.
+          </p>
+        </div>
+      </section>
+
+      <!-- SKEMA RANGKAIAN & VISUAL HARDWARE LED -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- GAMBAR RANGKAIAN (2 Kolom) -->
+        <div
+          class="md:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between"
+        >
+          <div
+            class="w-full flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-diagram-project text-blue-600"></i> Skema
+              Rangkaian ESP32
+            </h2>
+            <span
+              class="text-xs font-semibold text-blue-800 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md"
+            >
+              GPIO 3 & GND
+            </span>
+          </div>
+
+          <div
+            class="w-full bg-slate-50 p-3 sm:p-5 rounded-xl border border-slate-200 flex items-center justify-center min-h-[220px]"
+          >
+            <img
+              src="img/Modul03/3.2.1.png"
+              alt="Skema Rangkaian PWM LED ESP32"
+              class="max-h-[260px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs"
+              onerror="
+                this.onerror = null;
+                this.src = 'rangkaian1.png';
+              "
+            />
+          </div>
+        </div>
+
+        <!-- SIMULASI ANIMASI HARDWARE LED REALISTIS (1 Kolom - KONDISI AWAL BENING) -->
+        <div
+          class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between items-center text-center overflow-hidden"
+        >
+          <div
+            class="w-full border-b border-slate-100 pb-2.5 flex items-center justify-between mb-2"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-microchip text-blue-600"></i> Visual
+              Hardware
+            </h2>
+            <span
+              class="text-[10px] font-bold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded"
+              >GPIO 3 (PWM)</span
+            >
+          </div>
+
+          <!-- CONTAINER SVG SIMULATOR HARDWARE -->
+          <div
+            class="relative w-full h-full min-h-[220px] bg-slate-50 rounded-2xl p-4 flex flex-col items-center justify-center overflow-hidden border border-slate-200 shadow-xs my-auto"
+          >
+            <div
+              class="absolute inset-0 opacity-30 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:16px_16px]"
+            ></div>
+
+            <svg
+              viewBox="0 0 200 160"
+              class="w-48 h-48 z-10 filter drop-shadow-md"
+            >
+              <defs>
+                <radialGradient id="ledGlowOff" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ef4444" stop-opacity="0" />
+                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
+                </radialGradient>
+                <radialGradient id="ledGlowOn" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ff6b6b" stop-opacity="0.9" />
+                  <stop offset="50%" stop-color="#ef4444" stop-opacity="0.6" />
+                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient
+                  id="lensReflect"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+                  <stop offset="40%" stop-color="#ffffff" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.3" />
+                </linearGradient>
+              </defs>
+
+              <rect x="91" y="80" width="4" height="60" fill="#64748b" rx="1" />
+              <rect
+                x="105"
+                y="80"
+                width="4"
+                height="60"
+                fill="#94a3b8"
+                rx="1"
+              />
+
+              <circle
+                id="svgGlow"
+                cx="100"
+                cy="55"
+                r="45"
+                fill="url(#ledGlowOff)"
+                style="opacity: 0"
+                class="transition-all duration-300"
+              />
+
+              <!-- Kondisi awal body LED bening/transparan -->
+              <path
+                id="svgLedBody"
+                d="M 80 55 A 20 20 0 0 1 120 55 L 120 75 A 2 2 0 0 1 118 77 L 82 77 A 2 2 0 0 1 80 75 Z"
+                fill="#cbd5e1"
+                fill-opacity="0.6"
+                stroke="#94a3b8"
+                stroke-width="1.5"
+                class="transition-colors duration-300"
+              />
+
+              <path
+                d="M 90 65 L 95 55 L 98 65 Z"
+                fill="#ef4444"
+                opacity="0.8"
+              />
+              <path
+                d="M 105 65 L 105 58 Z"
+                stroke="#ef4444"
+                stroke-width="2"
+                opacity="0.8"
+              />
+
+              <path
+                d="M 80 55 A 20 20 0 0 1 120 55 L 120 75 A 2 2 0 0 1 118 77 L 82 77 A 2 2 0 0 1 80 75 Z"
+                fill="url(#lensReflect)"
+              />
+              <ellipse
+                cx="93"
+                cy="45"
+                rx="5"
+                ry="8"
+                fill="#ffffff"
+                opacity="0.6"
+                transform="rotate(-20 93 45)"
+              />
+            </svg>
+
+            <div
+              id="ledStatusBadge"
+              class="z-10 mt-1 text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700 border border-slate-300 transition-all duration-200"
+            >
+              STATUS: MATI (DUTY 0)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SELEKTOR MISI PRAKTIKUM PWM -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3
+            class="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-gamepad text-blue-600"></i> Pilih Misi
+            Praktikum MicroPython
+          </h3>
+          <span
+            class="text-xs font-bold text-blue-800 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full"
+          >
+            4 Opsi Kode PWM
+          </span>
+        </div>
+
+        <div class="flex flex-wrap gap-2.5">
+          <button
+            onclick="switchMission('4A')"
+            id="sub-btn-4a"
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-blue-600 text-white shadow-xs transition cursor-pointer flex items-center gap-2"
+          >
+            <i class="fa-solid fa-moon"></i> Kode 4A: Redup (Duty 100)
+          </button>
+          <button
+            onclick="switchMission('4B')"
+            id="sub-btn-4b"
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-200 text-slate-800 border border-slate-300 hover:bg-slate-300 transition cursor-pointer flex items-center gap-2"
+          >
+            <i class="fa-solid fa-circle-half-stroke"></i> Kode 4B: Sedang (Duty
+            400)
+          </button>
+          <button
+            onclick="switchMission('4C')"
+            id="sub-btn-4c"
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-200 text-slate-800 border border-slate-300 hover:bg-slate-300 transition cursor-pointer flex items-center gap-2"
+          >
+            <i class="fa-solid fa-sun"></i> Kode 4C: Terang (Duty 1023)
+          </button>
+          <button
+            onclick="switchMission('4D')"
+            id="sub-btn-4d"
+            class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-200 text-slate-800 border border-slate-300 hover:bg-slate-300 transition cursor-pointer flex items-center gap-2"
+          >
+            <i class="fa-solid fa-arrows-rotate"></i> Kode 4D: Transisi Otomatis
+          </button>
+        </div>
+
+        <div
+          id="mission-description-box"
+          class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs sm:text-sm text-blue-950 flex items-start gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 font-bold text-sm"
+          >
+            <i id="mission-icon" class="fa-solid fa-moon"></i>
+          </div>
+          <div class="space-y-1">
+            <div id="mission-title" class="font-bold">
+              Kode 4A: Redup (Duty Cycle 100)
+            </div>
+            <p id="mission-goal" class="text-slate-700 text-xs">
+              <strong>Tugas 4A:</strong> Atur duty cycle PWM ke 100 (~10% daya)
+              untuk menyalakan LED merah secara redup via MicroPython. Klik ikon
+              <strong class="text-emerald-700"
+                ><i class="fa-solid fa-circle-play"></i> Run</strong
+              >!
+            </p>
+          </div>
+        </div>
+
+        <!-- THONNY IDE CONTAINER -->
+        <div
+          class="rounded-xl overflow-hidden shadow-xs border border-slate-300 bg-white font-sans"
+        >
+          <div
+            class="bg-slate-200 border-b border-slate-300 px-3 py-1.5 flex items-center justify-between select-none"
+          >
+            <div class="flex items-center gap-1 sm:gap-2">
+              <button
+                title="New File"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-file text-sm"></i>
+              </button>
+              <button
+                title="Open..."
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-folder-open text-sm"></i>
+              </button>
+              <button
+                title="Save"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-floppy-disk text-sm"></i>
+              </button>
+
+              <div class="h-4 w-[1px] bg-slate-400 mx-1"></div>
+
+              <button
+                id="btnUpload"
+                onclick="uploadAndRun()"
+                title="Run current script (F5)"
+                class="w-7 h-7 rounded bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center transition cursor-pointer shadow-2xs"
+              >
+                <i class="fa-solid fa-play text-xs"></i>
+              </button>
+
+              <button
+                title="Debug script"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-600 flex items-center justify-center transition"
+              >
+                <i class="fa-solid fa-bug text-xs"></i>
+              </button>
+
+              <button
+                id="btnStop"
+                onclick="stopProgram()"
+                title="Stop / Restart backend (Ctrl+F2)"
+                class="w-7 h-7 rounded bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center transition cursor-pointer shadow-2xs"
+              >
+                <i class="fa-solid fa-stop text-xs"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                id="btnCopy"
+                onclick="copyCode()"
+                class="bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold px-2.5 py-1 rounded flex items-center gap-1.5 transition border border-slate-300 cursor-pointer shadow-2xs"
+              >
+                <i id="btnCopyIcon" class="fa-solid fa-copy text-slate-600"></i>
+                <span id="btnCopyText" class="hidden sm:inline"
+                  >Salin Kode</span
+                >
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="bg-slate-100 border-b border-slate-200 px-3 py-1 flex items-center justify-between text-slate-700 text-xs select-none"
+          >
+            <div class="flex items-center gap-1">
+              <div
+                class="bg-white px-3 py-1 rounded-t border-t-2 border-t-blue-600 border-x border-slate-300 text-slate-900 font-mono text-xs font-semibold flex items-center gap-2"
+              >
+                <i class="fa-regular fa-file-code text-blue-600"></i>
+                <span id="ideTitle">misi4a_redup.py</span>
+              </div>
+            </div>
+            <div class="font-mono text-[11px] text-slate-500">
+              MicroPython (ESP32)
+            </div>
+          </div>
+
+          <div class="flex min-h-[220px]">
+            <div class="p-3 sm:p-4 overflow-x-auto w-full bg-white">
+              <div
+                id="codeDisplay"
+                class="font-mono text-xs sm:text-sm leading-relaxed"
+              ></div>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-300 bg-slate-50">
+            <div
+              class="bg-slate-200 border-b border-slate-300 px-3 py-1 flex items-center justify-between text-slate-700 text-xs font-semibold select-none"
+            >
+              <div class="flex items-center gap-2 font-mono">
+                <i class="fa-solid fa-terminal text-slate-600 text-[11px]"></i>
+                <span>Shell (MicroPython REPL)</span>
+              </div>
+              <button
+                onclick="clearSerialMonitor()"
+                class="text-[11px] font-sans hover:text-slate-900 text-slate-500 underline cursor-pointer"
+              >
+                Clear Shell
+              </button>
+            </div>
+
+            <div
+              class="p-3 bg-white min-h-[140px] max-h-[180px] overflow-y-auto font-mono text-xs text-slate-900 space-y-1"
+              id="serialMonitorOutput"
+            >
+              <div class="text-slate-400 italic">
+                MicroPython v1.23.0 on ESP32<br />
+                Type "help()" for more information.<br />
+                &gt;&gt;&gt; [REPL Ready. Klik tombol Play (Hijau) di toolbar
+                Thonny untuk mengeksekusi script]
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="bg-slate-200 px-3 py-1 text-[11px] text-slate-700 flex justify-between items-center font-sans border-t border-slate-300 select-none"
+          >
+            <span class="flex items-center gap-1.5" id="ideStatusContainer">
+              <span
+                class="w-2 h-2 rounded-full bg-emerald-600 inline-block animate-pulse"
+              ></span>
+              <span id="ideStatusText" class="font-mono"
+                >MicroPython v1.23.0 | PWM GPIO 3</span
+              >
+            </span>
+            <span class="font-mono text-[11px] text-slate-800 font-semibold"
+              >MicroPython (ESP32) • COM3</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- NAVIGATION FOOTER -->
+      <nav class="flex items-center justify-between pt-2">
+        <a
+          href="index.html"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-xs transition-colors shadow-2xs"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Kembali</span>
+        </a>
+        <a
+          href="3.2.html"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-bold text-xs transition-colors shadow-xs"
+        >
+          <span>Sub 3.2: Potensiometer PWM</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </nav>
+    </main>
+
+    <footer
+      class="max-w-6xl mx-auto w-full px-4 pt-4 text-center text-xs text-slate-500 font-medium"
+    >
+      <p>© MIKRO EDU - SMK SMTI Yogyakarta | Teknik Mekatronika</p>
+    </footer>
+
+    <!-- LOGIKA JAVASCRIPT MICROPYTHON THONNY -->
+    <script>
+      const missions = {
+        "4A": {
+          filename: "misi4a_redup.py",
+          title: "Kode 4A: Redup (Duty Cycle 100)",
+          icon: "fa-moon",
+          desc: "<strong>Tugas 4A:</strong> Atur duty cycle PWM ke 100 (~10% dari 1023) untuk menyalakan LED merah secara redup via MicroPython.",
+          rawCode: `# --- MISI 4A: LED REDUP (PWM DUTY 100) ---
+from machine import Pin, PWM
+import time
+
+# Inisialisasi PWM pada GPIO 3 dengan frekuensi 1000 Hz
+led_pwm = PWM(Pin(3), freq=1000)
+
+while True:
+    led_pwm.duty(100)  # Kirim duty cycle = 100 (~10% kecerahan)
+    print("Status LED: REDUP (PWM Duty: 100 | ~10%)")
+    time.sleep(1)      # Jeda 1 detik
+`,
+        },
+        "4B": {
+          filename: "misi4b_sedang.py",
+          title: "Kode 4B: Sedang (Duty Cycle 400)",
+          icon: "fa-circle-half-stroke",
+          desc: "<strong>Tugas 4B:</strong> Atur duty cycle PWM ke 400 (~39% dari 1023) untuk menyalakan LED dengan kecerahan sedang.",
+          rawCode: `# --- MISI 4B: LED SEDANG (PWM DUTY 400) ---
+from machine import Pin, PWM
+import time
+
+led_pwm = PWM(Pin(3), freq=1000)
+
+
+while True:
+    led_pwm.duty(400)  # Kirim duty cycle = 400 (~39% kecerahan)
+    print("Status LED: SEDANG (PWM Duty: 400 | ~39%)")
+    time.sleep(1)      # Jeda 1 detik
+`,
+        },
+        "4C": {
+          filename: "misi4c_terang.py",
+          title: "Kode 4C: Terang (Duty Cycle 1023)",
+          icon: "fa-sun",
+          desc: "<strong>Tugas 4C:</strong> Atur duty cycle PWM ke 1023 (100% daya maksimal) untuk menyalakan LED paling terang.",
+          rawCode: `# --- MISI 4C: LED TERANG (PWM DUTY 1023) ---
+from machine import Pin, PWM
+import time
+
+led_pwm = PWM(Pin(3), freq=1000)
+
+
+while True:
+    led_pwm.duty(1023)  # Kirim duty cycle = 1023 (Maksimal 100%)
+    print("Status LED: TERANG (PWM Duty: 1023 | 100%)")
+    time.sleep(1)       # Jeda 1 detik
+`,
+        },
+        "4D": {
+          filename: "misi4d_transisi.py",
+          title: "Kode 4D: Transisi Otomatis",
+          icon: "fa-arrows-rotate",
+          desc: "<strong>Tugas 4D:</strong> Program melakukan transisi bertahap dari Redup (100) -> Sedang (400) -> Terang (1023) -> Mati (0).",
+          rawCode: `# --- MISI 4D: TRANSISI OTOMATIS PWM ESP32 ---
+from machine import Pin, PWM
+import time
+
+led_pwm = PWM(Pin(3), freq=1000)
+
+
+while True:
+    # Tahap 1: Redup
+    led_pwm.duty(100)
+    print("REDUP (Duty: 100)")
+    time.sleep(1)
+
+    # Tahap 2: Sedang
+    led_pwm.duty(400)
+    print("SEDANG (Duty: 400)")
+    time.sleep(1)
+
+    # Tahap 3: Terang
+    led_pwm.duty(1023)
+    print("TERANG (Duty: 1023)")
+    time.sleep(1)
+
+    # Tahap 4: Mati
+    led_pwm.duty(0)
+    print("MATI (Duty: 0)")
+    time.sleep(1)
+`,
+        },
+      };
+
+      let currentMissionKey = "4A";
+      let liveTimer = null;
+      let isUploading = false;
+
+      function setLedAnalogValue(dutyVal) {
+        const glow = document.getElementById("svgGlow");
+        const body = document.getElementById("svgLedBody");
+        const badge = document.getElementById("ledStatusBadge");
+
+        const ratio = Math.min(Math.max(dutyVal / 1023, 0), 1);
+        const percentage = Math.round(ratio * 100);
+
+        if (dutyVal > 0) {
+          glow.setAttribute("fill", "url(#ledGlowOn)");
+          glow.style.opacity = (ratio * 0.95).toFixed(2);
+          body.setAttribute("fill", "#ef4444");
+          body.setAttribute("fill-opacity", "0.9");
+          body.setAttribute("stroke", "#b91c1c");
+
+          badge.className =
+            "z-10 mt-1 text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-amber-500 text-white border border-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.4)] transition-all duration-200";
+          badge.innerText = `STATUS: DUTY ${dutyVal} (${percentage}%)`;
+        } else {
+          glow.setAttribute("fill", "url(#ledGlowOff)");
+          glow.style.opacity = "0";
+          body.setAttribute("fill", "#cbd5e1");
+          body.setAttribute("fill-opacity", "0.6");
+          body.setAttribute("stroke", "#94a3b8");
+
+          badge.className =
+            "z-10 mt-1 text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700 border border-slate-300 transition-all duration-200";
+          badge.innerText = "STATUS: MATI (DUTY 0)";
+        }
+      }
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function renderPythonSyntax(code) {
+        const lines = code.split("\n");
+        let htmlResult =
+          '<div class="table w-full border-collapse font-mono text-xs sm:text-sm">';
+
+        lines.forEach((line, index) => {
+          let comment = "";
+          let codePart = line;
+
+          const commentIdx = line.indexOf("#");
+          if (commentIdx !== -1) {
+            codePart = line.substring(0, commentIdx);
+            comment = `<span class="text-slate-400 italic font-normal">${escapeHtml(line.substring(commentIdx))}</span>`;
+          }
+
+          codePart = escapeHtml(codePart);
+
+          codePart = codePart
+            .replace(
+              /\b(from|import|def|while|True|False|return|class|in)\b/g,
+              '<span class="text-[#2563eb] font-bold">$1</span>',
+            )
+            .replace(
+              /\b(Pin|PWM|time|sleep|print|duty|freq)\b/g,
+              '<span class="text-[#0284c7] font-semibold">$1</span>',
+            )
+            .replace(
+              /\b(\d+)\b/g,
+              '<span class="text-[#059669] font-medium">$1</span>',
+            );
+
+          htmlResult += `
+            <div class="table-row hover:bg-slate-50">
+              <div class="table-cell text-right select-none pr-3.5 text-slate-400 font-mono text-xs w-7 border-r border-slate-200 py-0.5">${index + 1}</div>
+              <div class="table-cell pl-3.5 whitespace-pre font-mono text-slate-900 py-0.5">${codePart}${comment}</div>
+            </div>`;
+        });
+
+        htmlResult += "</div>";
+        return htmlResult;
+      }
+
+      function printLiveLog(logText) {
+        const monitor = document.getElementById("serialMonitorOutput");
+        const line = document.createElement("div");
+        line.className = "text-xs font-mono text-slate-900";
+        line.innerHTML = `<span class="text-slate-400">&gt;&gt;&gt;</span> ${escapeHtml(logText)}`;
+        monitor.appendChild(line);
+        monitor.scrollTop = monitor.scrollHeight;
+      }
+
+      function startContinuousOutput(key) {
+        stopProgramSilently();
+        const monitor = document.getElementById("serialMonitorOutput");
+        monitor.innerHTML = `<div class="text-slate-500 font-mono text-xs">%Run ${missions[key].filename}</div>`;
+
+        if (key === "4A") {
+          printLiveLog("Status LED: REDUP (PWM Duty: 100 | ~10%)");
+          setLedAnalogValue(100);
+          liveTimer = setInterval(() => {
+            printLiveLog("Status LED: REDUP (PWM Duty: 100 | ~10%)");
+            setLedAnalogValue(100);
+          }, 1000);
+        } else if (key === "4B") {
+          printLiveLog("Status LED: SEDANG (PWM Duty: 400 | ~39%)");
+          setLedAnalogValue(400);
+          liveTimer = setInterval(() => {
+            printLiveLog("Status LED: SEDANG (PWM Duty: 400 | ~39%)");
+            setLedAnalogValue(400);
+          }, 1000);
+        } else if (key === "4C") {
+          printLiveLog("Status LED: TERANG (PWM Duty: 1023 | 100%)");
+          setLedAnalogValue(1023);
+          liveTimer = setInterval(() => {
+            printLiveLog("Status LED: TERANG (PWM Duty: 1023 | 100%)");
+            setLedAnalogValue(1023);
+          }, 1000);
+        } else if (key === "4D") {
+          const stages = [
+            { duty: 100, msg: "Transisi Stage 1 - REDUP (Duty: 100)" },
+            { duty: 400, msg: "Transisi Stage 2 - SEDANG (Duty: 400)" },
+            { duty: 1023, msg: "Transisi Stage 3 - TERANG (Duty: 1023)" },
+            { duty: 0, msg: "Transisi Stage 4 - MATI (Duty: 0)" },
+          ];
+
+          let stepIndex = 0;
+          printLiveLog(stages[0].msg);
+          setLedAnalogValue(stages[0].duty);
+
+          liveTimer = setInterval(() => {
+            stepIndex = (stepIndex + 1) % stages.length;
+            printLiveLog(stages[stepIndex].msg);
+            setLedAnalogValue(stages[stepIndex].duty);
+          }, 1000);
+        }
+      }
+
+      function uploadAndRun() {
+        if (isUploading) return;
+        isUploading = true;
+
+        stopProgramSilently();
+        setLedAnalogValue(0);
+
+        const statusText = document.getElementById("ideStatusText");
+        const btnUpload = document.getElementById("btnUpload");
+
+        btnUpload.disabled = true;
+        btnUpload.classList.add("opacity-50", "cursor-not-allowed");
+
+        statusText.innerHTML = `<span class="text-amber-600 font-bold"><i class="fa-solid fa-spinner animate-spin mr-1"></i>Running script...</span>`;
+
+        setTimeout(() => {
+          statusText.innerHTML = `MicroPython v1.23.0 | PWM GPIO 3`;
+          btnUpload.disabled = false;
+          btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
+          isUploading = false;
+
+          startContinuousOutput(currentMissionKey);
+        }, 300);
+      }
+
+      function stopProgramSilently() {
+        if (liveTimer) {
+          clearInterval(liveTimer);
+          liveTimer = null;
+        }
+        isUploading = false;
+      }
+
+      function stopProgram() {
+        stopProgramSilently();
+        setLedAnalogValue(0);
+
+        const btnUpload = document.getElementById("btnUpload");
+        btnUpload.disabled = false;
+        btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
+
+        const statusText = document.getElementById("ideStatusText");
+        statusText.innerHTML = `MicroPython v1.23.0 | PWM GPIO 3`;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        const line = document.createElement("div");
+        line.className = "text-rose-600 font-mono text-xs italic mt-1";
+        line.innerText =
+          'Traceback (most recent call last):\n  File "<stdin>", line 1\nKeyboardInterrupt';
+        monitor.appendChild(line);
+      }
+
+      function clearSerialMonitor() {
+        document.getElementById("serialMonitorOutput").innerHTML =
+          `<div class="text-slate-400 italic">&gt;&gt;&gt; [Shell Cleared]</div>`;
+      }
+
+      function switchMission(key) {
+        const keys = ["4A", "4B", "4C", "4D"];
+        keys.forEach((k) => {
+          const btn = document.getElementById(`sub-btn-${k.toLowerCase()}`);
+          if (btn) {
+            if (k === key) {
+              btn.className =
+                "px-4 py-2.5 rounded-2xl text-xs font-bold bg-blue-600 text-white shadow-xs transition cursor-pointer flex items-center gap-2";
+            } else {
+              btn.className =
+                "px-4 py-2.5 rounded-2xl text-xs font-bold bg-slate-200 text-slate-800 border border-slate-300 hover:bg-slate-300 transition cursor-pointer flex items-center gap-2";
+            }
+          }
+        });
+
+        updateView(key);
+      }
+
+      function updateView(key) {
+        stopProgramSilently();
+        setLedAnalogValue(0);
+
+        currentMissionKey = key;
+        const data = missions[key];
+
+        document.getElementById("ideTitle").innerText = data.filename;
+        document.getElementById("codeDisplay").innerHTML = renderPythonSyntax(
+          data.rawCode,
+        );
+        document.getElementById("mission-title").innerText = data.title;
+        document.getElementById("mission-goal").innerHTML = data.desc;
+        document.getElementById("mission-icon").className =
+          `fa-solid ${data.icon}`;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        monitor.innerHTML = `<div class="text-slate-400 italic">&gt;&gt;&gt; [REPL Ready. Klik tombol Play (Hijau) di toolbar Thonny untuk menjalankan script]</div>`;
+      }
+
+      function copyCode() {
+        const rawCodeText = missions[currentMissionKey].rawCode;
+        navigator.clipboard.writeText(rawCodeText).then(() => {
+          const btnText = document.getElementById("btnCopyText");
+          const btnIcon = document.getElementById("btnCopyIcon");
+
+          btnText.innerText = "Tersalin!";
+          btnIcon.className = "fa-solid fa-check text-emerald-600";
+
+          setTimeout(() => {
+            btnText.innerText = "Salin Kode";
+            btnIcon.className = "fa-solid fa-copy text-slate-600";
+          }, 2000);
+        });
+      }
+
+      window.onload = function () {
+        switchMission("4A");
+      };
+    </script>
+  </body>
+</html>

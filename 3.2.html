@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sub 3.2 - Potensiometer & PWM MicroPython ESP32</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- FontAwesome CDN -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <style>
+      /* Style Custom Range Input (Potensiometer Dial) */
+      input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #2563eb;
+        cursor: pointer;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased pb-10"
+  >
+    <!-- HEADER APP (BLUE THEME) -->
+    <header
+      class="bg-blue-900 border-b border-blue-800 text-white sticky top-0 z-40 shadow-sm"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3"
+      >
+        <div class="flex items-center gap-3">
+          <a
+            href="index.html"
+            class="w-9 h-9 rounded-xl bg-blue-800 hover:bg-blue-700 text-blue-100 border border-blue-700 flex items-center justify-center text-sm transition-colors"
+            title="Kembali"
+          >
+            <i class="fa-solid fa-home"></i>
+          </a>
+          <div>
+            <div class="flex items-center gap-2">
+              <span
+                class="text-[10px] font-extrabold bg-blue-800 text-blue-200 border border-blue-700 px-2 py-0.5 rounded uppercase tracking-wider"
+              >
+                SUB 3.2 - MICROPYTHON
+              </span>
+            </div>
+            <h1
+              class="text-sm sm:text-base font-bold text-white leading-tight mt-0.5"
+            >
+              Potensiometer & Pengendalian Kecerahan PWM
+            </h1>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <!-- HERO BANNER BLUE -->
+      <section
+        class="bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden border border-blue-800"
+      >
+        <div
+          class="absolute -right-4 -bottom-6 opacity-10 pointer-events-none hidden sm:block select-none"
+        >
+          <i class="fa-solid fa-gauge text-[140px] text-white"></i>
+        </div>
+        <div class="relative z-10 space-y-1.5 max-w-3xl">
+          <div
+            class="inline-flex items-center gap-2 bg-blue-800/80 border border-blue-700 text-blue-100 px-2.5 py-0.5 rounded-full text-xs font-semibold backdrop-blur-md"
+          >
+            <i class="fa-solid fa-microchip text-blue-300 text-xs"></i>
+            <span>Praktik Analog Input to PWM Output MicroPython</span>
+          </div>
+          <h2
+            class="text-lg sm:text-xl font-extrabold text-white leading-tight display-font"
+          >
+            Kontrol Dimmer LED Manual dengan Potensiometer (ESP32)
+          </h2>
+          <p
+            class="text-xs sm:text-sm text-blue-100/90 leading-relaxed font-normal"
+          >
+            Pelajari cara membaca sinyal analog dari Potensiometer menggunakan
+            modul
+            <code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >machine.ADC</code
+            >
+            (rentang 0–4095) lalu konversi menjadi sinyal PWM
+            <code
+              class="font-mono text-white font-bold bg-blue-800 px-1 py-0.5 rounded border border-blue-700"
+              >duty()</code
+            >
+            (0–1023) secara langsung menggunakan perhitungan matematika dasar di
+            MicroPython.
+          </p>
+        </div>
+      </section>
+
+      <!-- SKEMA RANGKAIAN & VISUAL HARDWARE SIMULATOR -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- GAMBAR RANGKAIAN (2 Kolom) -->
+        <div
+          class="md:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between"
+        >
+          <div
+            class="w-full flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-diagram-project text-blue-600"></i> Skema
+              Rangkaian ESP32
+            </h2>
+            <span
+              class="text-xs font-semibold text-blue-800 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md"
+            >
+              ADC: GPIO 34 | PWM: GPIO 3
+            </span>
+          </div>
+
+          <div
+            class="w-full bg-slate-50 p-3 sm:p-5 rounded-xl border border-slate-200 flex items-center justify-center min-h-[220px]"
+          >
+            <img
+              src="img/Modul03/3.3.1.png"
+              alt="Skema Rangkaian Potensiometer LED ESP32"
+              class="max-h-[260px] w-auto max-w-full object-contain rounded-lg border border-slate-200 bg-white p-2 shadow-xs"
+              onerror="
+                this.onerror = null;
+                this.src = 'modul03/img/3.3.1.png';
+              "
+            />
+          </div>
+        </div>
+
+        <!-- VISUAL HARDWARE SIMULATOR & POTENTIOMETER SLIDER -->
+        <div
+          class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between items-center text-center overflow-hidden"
+        >
+          <div
+            class="w-full border-b border-slate-100 pb-2.5 flex items-center justify-between mb-2"
+          >
+            <h2
+              class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-microchip text-blue-600"></i> Visual
+              Hardware
+            </h2>
+            <span
+              class="text-[10px] font-bold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded"
+              >ADC34 & GPIO 3</span
+            >
+          </div>
+
+          <!-- CONTAINER SVG SIMULATOR HARDWARE -->
+          <div
+            class="relative w-full h-full min-h-[200px] bg-slate-50 rounded-2xl p-3 flex flex-col items-center justify-center overflow-hidden border border-slate-200 shadow-xs my-auto"
+          >
+            <div
+              class="absolute inset-0 opacity-30 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:16px_16px]"
+            ></div>
+
+            <svg
+              viewBox="0 0 200 140"
+              class="w-40 h-40 z-10 filter drop-shadow-md"
+            >
+              <defs>
+                <radialGradient id="ledGlowOff" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ef4444" stop-opacity="0" />
+                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
+                </radialGradient>
+                <radialGradient id="ledGlowOn" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#ff6b6b" stop-opacity="0.9" />
+                  <stop offset="50%" stop-color="#ef4444" stop-opacity="0.6" />
+                  <stop offset="100%" stop-color="#ef4444" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient
+                  id="lensReflect"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+                  <stop offset="40%" stop-color="#ffffff" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.3" />
+                </linearGradient>
+              </defs>
+
+              <rect x="91" y="70" width="4" height="60" fill="#64748b" rx="1" />
+              <rect
+                x="105"
+                y="70"
+                width="4"
+                height="60"
+                fill="#94a3b8"
+                rx="1"
+              />
+
+              <circle
+                id="svgGlow"
+                cx="100"
+                cy="45"
+                r="45"
+                fill="url(#ledGlowOn)"
+                style="opacity: 0.5"
+                class="transition-all duration-150"
+              />
+
+              <path
+                id="svgLedBody"
+                d="M 80 45 A 20 20 0 0 1 120 45 L 120 65 A 2 2 0 0 1 118 67 L 82 67 A 2 2 0 0 1 80 65 Z"
+                fill="#ef4444"
+                class="transition-colors duration-150"
+              />
+
+              <path
+                d="M 90 55 L 95 45 L 98 55 Z"
+                fill="#f87171"
+                opacity="0.8"
+              />
+              <path
+                d="M 105 55 L 105 48 Z"
+                stroke="#f87171"
+                stroke-width="2"
+                opacity="0.8"
+              />
+
+              <path
+                d="M 80 45 A 20 20 0 0 1 120 45 L 120 65 A 2 2 0 0 1 118 67 L 82 67 A 2 2 0 0 1 80 65 Z"
+                fill="url(#lensReflect)"
+              />
+            </svg>
+
+            <div
+              id="ledStatusBadge"
+              class="z-10 text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-slate-200 text-slate-700 border border-slate-300 transition-all duration-150"
+            >
+              ADC: 2048 | DUTY: 512 (50%)
+            </div>
+          </div>
+
+          <!-- SLIDER SIMULASI POTENSIOMETER (0 - 4095 ESP32 ADC) -->
+          <div
+            class="w-full mt-3 p-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1.5"
+          >
+            <div
+              class="flex justify-between items-center text-xs font-bold text-slate-700"
+            >
+              <span class="flex items-center gap-1.5">
+                <i class="fa-solid fa-sliders text-blue-600"></i> Putar
+                Potensio:
+              </span>
+              <span id="potValueText" class="font-mono text-blue-700"
+                >2048</span
+              >
+            </div>
+            <input
+              type="range"
+              id="potSlider"
+              min="0"
+              max="4095"
+              value="2048"
+              oninput="onPotentiometerChange(this.value)"
+              class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            />
+            <div
+              class="flex justify-between text-[10px] text-slate-400 font-mono"
+            >
+              <span>0</span>
+              <span>2048</span>
+              <span>4095</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRAKTIKUM CODE EDITOR & SERIAL MONITOR -->
+      <section class="space-y-4">
+        <div
+          class="bg-blue-50 border border-blue-200 rounded-xl p-3.5 text-xs sm:text-sm text-blue-950 flex items-start gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 font-bold text-sm"
+          >
+            <i class="fa-solid fa-code"></i>
+          </div>
+          <div class="space-y-1">
+            <div class="font-bold text-slate-900">
+              Program Dimmer LED Potensiometer MicroPython
+            </div>
+            <p class="text-slate-700 text-xs">
+              Membaca ADC 12-bit ESP32 (<code
+                class="font-mono bg-blue-100 text-blue-800 px-1 rounded"
+                >0–4095</code
+              >) dan mengonversikannya ke rentang PWM duty cycle (<code
+                class="font-mono bg-blue-100 text-blue-800 px-1 rounded"
+                >0–1023</code
+              >) menggunakan operasi matematika sederhana.
+            </p>
+          </div>
+        </div>
+
+        <!-- THONNY IDE CONTAINER -->
+        <div
+          class="rounded-xl overflow-hidden shadow-xs border border-slate-300 bg-white font-sans"
+        >
+          <div
+            class="bg-slate-200 border-b border-slate-300 px-3 py-1.5 flex items-center justify-between select-none"
+          >
+            <div class="flex items-center gap-1 sm:gap-2">
+              <button
+                title="New File"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-file text-sm"></i>
+              </button>
+              <button
+                title="Open..."
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-folder-open text-sm"></i>
+              </button>
+              <button
+                title="Save"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-700 flex items-center justify-center transition"
+              >
+                <i class="fa-regular fa-floppy-disk text-sm"></i>
+              </button>
+
+              <div class="h-4 w-[1px] bg-slate-400 mx-1"></div>
+
+              <button
+                id="btnUpload"
+                onclick="uploadAndRun()"
+                title="Run current script (F5)"
+                class="w-7 h-7 rounded bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center transition cursor-pointer shadow-2xs"
+              >
+                <i class="fa-solid fa-play text-xs"></i>
+              </button>
+
+              <button
+                title="Debug script"
+                class="w-7 h-7 rounded hover:bg-slate-300 text-slate-600 flex items-center justify-center transition"
+              >
+                <i class="fa-solid fa-bug text-xs"></i>
+              </button>
+
+              <button
+                id="btnStop"
+                onclick="stopProgram()"
+                title="Stop / Restart backend (Ctrl+F2)"
+                class="w-7 h-7 rounded bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center transition cursor-pointer shadow-2xs"
+              >
+                <i class="fa-solid fa-stop text-xs"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                id="btnCopy"
+                onclick="copyCode()"
+                class="bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold px-2.5 py-1 rounded flex items-center gap-1.5 transition border border-slate-300 cursor-pointer shadow-2xs"
+              >
+                <i id="btnCopyIcon" class="fa-solid fa-copy text-slate-600"></i>
+                <span id="btnCopyText" class="hidden sm:inline"
+                  >Salin Kode</span
+                >
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="bg-slate-100 border-b border-slate-200 px-3 py-1 flex items-center justify-between text-slate-700 text-xs select-none"
+          >
+            <div class="flex items-center gap-1">
+              <div
+                class="bg-white px-3 py-1 rounded-t border-t-2 border-t-blue-600 border-x border-slate-300 text-slate-900 font-mono text-xs font-semibold flex items-center gap-2"
+              >
+                <i class="fa-regular fa-file-code text-blue-600"></i>
+                <span>misi_potensio_pwm.py</span>
+              </div>
+            </div>
+            <div class="font-mono text-[11px] text-slate-500">
+              MicroPython (ESP32)
+            </div>
+          </div>
+
+          <div class="flex min-h-[220px]">
+            <div class="p-3 sm:p-4 overflow-x-auto w-full bg-white">
+              <div
+                id="codeDisplay"
+                class="font-mono text-xs sm:text-sm leading-relaxed"
+              ></div>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-300 bg-slate-50">
+            <div
+              class="bg-slate-200 border-b border-slate-300 px-3 py-1 flex items-center justify-between text-slate-700 text-xs font-semibold select-none"
+            >
+              <div class="flex items-center gap-2 font-mono">
+                <i class="fa-solid fa-terminal text-slate-600 text-[11px]"></i>
+                <span>Shell (MicroPython REPL)</span>
+              </div>
+              <button
+                onclick="clearSerialMonitor()"
+                class="text-[11px] font-sans hover:text-slate-900 text-slate-500 underline cursor-pointer"
+              >
+                Clear Shell
+              </button>
+            </div>
+
+            <div
+              class="p-3 bg-white min-h-[140px] max-h-[180px] overflow-y-auto font-mono text-xs text-slate-900 space-y-1"
+              id="serialMonitorOutput"
+            >
+              <div class="text-slate-400 italic">
+                MicroPython v1.23.0 on ESP32<br />
+                Type "help()" for more information.<br />
+                &gt;&gt;&gt; [REPL Ready. Geser slider potensiometer lalu klik
+                tombol Play (Hijau)]
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="bg-slate-200 px-3 py-1 text-[11px] text-slate-700 flex justify-between items-center font-sans border-t border-slate-300 select-none"
+          >
+            <span class="flex items-center gap-1.5" id="ideStatusContainer">
+              <span
+                class="w-2 h-2 rounded-full bg-emerald-600 inline-block animate-pulse"
+              ></span>
+              <span id="ideStatusText" class="font-mono"
+                >MicroPython v1.23.0 | ADC: GPIO 34 | PWM: GPIO 3</span
+              >
+            </span>
+            <span class="font-mono text-[11px] text-slate-800 font-semibold"
+              >MicroPython (ESP32) • COM3</span
+            >
+          </div>
+        </div>
+
+        <!-- SERIAL MONITOR / REPL OUTPUT SECTION -->
+        <div
+          class="rounded-xl overflow-hidden shadow-xs border border-slate-300 bg-white font-sans mt-4"
+        >
+          <div
+            class="bg-slate-200 border-b border-slate-300 px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-slate-800 select-none"
+          >
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-terminal text-blue-700 text-xs"></i>
+              <span class="font-bold text-xs uppercase tracking-wide"
+                >Serial Monitor (Simulasi Analog Input)</span
+              >
+              <span
+                class="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold hidden sm:inline-block"
+                >COM3: 9600 baud</span
+              >
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button
+                id="btnUpload"
+                onclick="uploadAndRun()"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+                title="Jalankan Simulasi"
+              >
+                <i class="fa-solid fa-play text-[10px]"></i>
+                <span>Upload & Run</span>
+              </button>
+
+              <button
+                id="btnStop"
+                onclick="stopProgram()"
+                class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+                title="Hentikan Simulasi"
+              >
+                <i class="fa-solid fa-stop text-[10px]"></i>
+                <span>Stop</span>
+              </button>
+
+              <button
+                onclick="clearSerialMonitor()"
+                class="bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold px-2 py-1 rounded border border-slate-300 transition cursor-pointer"
+                title="Bersihkan Tampilan"
+              >
+                <i class="fa-solid fa-eraser text-slate-500 mr-1"></i>Clear
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="p-3 bg-white min-h-[150px] max-h-[200px] overflow-y-auto font-mono text-xs text-slate-900 space-y-1.5 border-b border-slate-200"
+            id="serialMonitorOutput"
+          >
+            <div class="text-slate-400 italic">
+              [Serial Monitor Siap. Geser slider potensiometer lalu klik "Upload
+              & Run"]
+            </div>
+          </div>
+
+          <div
+            class="bg-slate-50 px-3 py-1.5 text-[11px] text-slate-700 flex justify-between items-center font-sans"
+          >
+            <div class="flex items-center gap-2 text-xs">
+              <span
+                class="w-2 h-2 rounded-full bg-emerald-500 inline-block"
+              ></span>
+              <span class="text-slate-500 font-mono text-[11px]"
+                >Status: Connected @ 9600 baud</span
+              >
+            </div>
+
+            <div class="flex items-center gap-3 text-[11px] text-slate-500">
+              <label
+                class="flex items-center gap-1.5 cursor-pointer select-none"
+              >
+                <input
+                  type="checkbox"
+                  id="chkTimestamp"
+                  onchange="toggleTimestampVisibility()"
+                  checked
+                  class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <span class="font-medium text-slate-700">Show Timestamp</span>
+              </label>
+
+              <label
+                class="flex items-center gap-1.5 cursor-pointer select-none"
+              >
+                <input
+                  type="checkbox"
+                  id="chkAutoscroll"
+                  checked
+                  class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <span class="font-medium text-slate-700">Autoscroll</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NAVIGATION FOOTER -->
+      <nav class="flex items-center justify-between pt-2">
+        <a
+          href="3.1.html"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 font-bold text-xs transition-colors shadow-2xs"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Sub 3.1: Output LED Analog</span>
+        </a>
+        <a
+          href="3.3.html"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 font-bold text-xs transition-colors shadow-xs"
+        >
+          <span>Sub 3.3: Sensor Cahaya LDR & PWM</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </nav>
+    </main>
+
+    <footer
+      class="max-w-6xl mx-auto w-full px-4 pt-4 text-center text-xs text-slate-500 font-medium"
+    >
+      <p>© MIKRO EDU - SMK SMTI Yogyakarta | Teknik Mekatronika</p>
+    </footer>
+
+    <!-- SCRIPT LOGIKA PROGRAM MICROPYTHON -->
+    <script>
+      const rawPythonCode = `# --- SUB 3.2: KONTROL KECERAHAN LED DENGAN POTENSIOMETER ---
+from machine import ADC, Pin, PWM
+import time
+
+# Inisialisasi ADC pada GPIO 34 (Atenuasi 11dB untuk range 0-3.3V)
+pot = ADC(Pin(34))
+pot.atten(ADC.ATTN_11DB)
+
+# Inisialisasi PWM pada GPIO 3 dengan frekuensi 1000 Hz
+led_pwm = PWM(Pin(3), freq=1000)
+
+print("Program Dimmer Potensiometer MicroPython Dimulai...")
+
+while True:
+    # 1. Baca nilai ADC dari potensiometer (0 - 4095)
+    nilai_adc = pot.read()
+
+    # 2. Konversi nilai ADC (0-4095) ke nilai PWM duty cycle (0-1023)
+    nilai_duty = int((nilai_adc / 4095) * 1023)
+
+    # 3. Output sinyal PWM ke LED
+    led_pwm.duty(nilai_duty)
+
+    # 4. Hitung persentase kecerahan
+    persen = int((nilai_duty / 1023) * 100)
+
+    # 5. Tampilkan data ke Serial Monitor / Shell
+    print(f"ADC: {nilai_adc} | Duty: {nilai_duty} ({persen}%)")
+
+    time.sleep(0.3)  # Jeda sampling 300 ms
+`;
+
+      let isProgramRunning = false;
+      let isUploading = false;
+      let liveTimer = null;
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function renderPythonSyntax(code) {
+        const lines = code.split("\n");
+        let htmlResult =
+          '<div class="table w-full border-collapse font-mono text-xs sm:text-sm">';
+
+        lines.forEach((line, index) => {
+          let comment = "";
+          let codePart = line;
+
+          const commentIdx = line.indexOf("#");
+          if (commentIdx !== -1) {
+            codePart = line.substring(0, commentIdx);
+            comment = `<span class="text-slate-400 italic font-normal">${escapeHtml(
+              line.substring(commentIdx),
+            )}</span>`;
+          }
+
+          codePart = escapeHtml(codePart);
+
+          codePart = codePart
+            .replace(
+              /\b(from|import|def|while|True|False|return|class|in|int)\b/g,
+              '<span class="text-[#2563eb] font-bold">$1</span>',
+            )
+            .replace(
+              /\b(ADC|Pin|PWM|time|sleep|print|read|atten|duty|freq)\b/g,
+              '<span class="text-[#0284c7] font-semibold">$1</span>',
+            )
+            .replace(
+              /\b(ATTN_11DB)\b/g,
+              '<span class="text-[#d97706] font-bold">$1</span>',
+            )
+            .replace(
+              /\b(\d+)\b/g,
+              '<span class="text-[#059669] font-medium">$1</span>',
+            );
+
+          htmlResult += `
+        <div class="table-row hover:bg-slate-50">
+          <div class="table-cell text-right select-none pr-3.5 text-slate-400 font-mono text-xs w-7 border-r border-slate-200 py-0.5">${
+            index + 1
+          }</div>
+          <div class="table-cell pl-3.5 whitespace-pre font-mono text-slate-900 py-0.5">${codePart}${comment}</div>
+        </div>`;
+        });
+
+        htmlResult += "</div>";
+        return htmlResult;
+      }
+
+      function onPotentiometerChange(val) {
+        const adc = parseInt(val);
+        const duty = Math.round((adc / 4095) * 1023);
+        const percent = Math.round((duty / 1023) * 100);
+
+        document.getElementById("potValueText").innerText = `${adc}`;
+        document.getElementById("ledStatusBadge").innerText =
+          `ADC: ${adc} | DUTY: ${duty} (${percent}%)`;
+
+        const svgGlow = document.getElementById("svgGlow");
+        const svgLedBody = document.getElementById("svgLedBody");
+
+        const ratio = duty / 1023;
+        if (svgGlow) {
+          svgGlow.style.opacity = ratio * 0.95;
+          svgGlow.setAttribute(
+            "fill",
+            ratio > 0 ? "url(#ledGlowOn)" : "url(#ledGlowOff)",
+          );
+        }
+
+        if (svgLedBody) {
+          if (ratio === 0) {
+            svgLedBody.setAttribute("fill", "#cbd5e1");
+            svgLedBody.setAttribute("fill-opacity", "0.6");
+          } else {
+            svgLedBody.setAttribute("fill", "#ef4444");
+            svgLedBody.setAttribute("fill-opacity", "0.9");
+          }
+        }
+      }
+
+      function getRealtimeTimestamp() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+        return `[${hours}:${minutes}:${seconds}]`;
+      }
+
+      function printLiveLog(logText) {
+        const monitor = document.getElementById("serialMonitorOutput");
+        const showTimestamp = document.getElementById("chkTimestamp").checked;
+        const autoScroll = document.getElementById("chkAutoscroll").checked;
+
+        const line = document.createElement("div");
+        line.className =
+          "flex items-center gap-2 text-xs font-mono text-slate-900 log-line";
+
+        const hideClass = showTimestamp ? "" : "hidden";
+        const timestampStr = getRealtimeTimestamp();
+
+        line.innerHTML = `
+      <span class="text-blue-600 font-semibold">&gt;&gt;&gt;</span>
+      <span class="timestamp-tag text-slate-400 text-[11px] font-mono ${hideClass}">${timestampStr}</span>
+      <span class="text-slate-900 font-mono">${escapeHtml(logText)}</span>
+    `;
+
+        monitor.appendChild(line);
+
+        if (autoScroll) {
+          monitor.scrollTop = monitor.scrollHeight;
+        }
+      }
+
+      function toggleTimestampVisibility() {
+        const showTimestamp = document.getElementById("chkTimestamp").checked;
+        const tags = document.querySelectorAll(".timestamp-tag");
+        tags.forEach((tag) => {
+          if (showTimestamp) {
+            tag.classList.remove("hidden");
+          } else {
+            tag.classList.add("hidden");
+          }
+        });
+      }
+
+      function startSimulationLoop() {
+        isProgramRunning = true;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        monitor.innerHTML = "";
+
+        printLiveLog("Program Dimmer Potensiometer MicroPython Dimulai...");
+
+        liveTimer = setInterval(() => {
+          if (!isProgramRunning) return;
+
+          const potVal = parseInt(document.getElementById("potSlider").value);
+          const dutyVal = Math.round((potVal / 4095) * 1023);
+          const percent = Math.round((dutyVal / 1023) * 100);
+
+          printLiveLog(`ADC: ${potVal} | Duty: ${dutyVal} (${percent}%)`);
+        }, 400);
+      }
+
+      function uploadAndRun() {
+        if (isUploading) return;
+        isUploading = true;
+
+        stopProgramSilently();
+
+        const statusText = document.getElementById("ideStatusText");
+        const btnUpload = document.getElementById("btnUpload");
+
+        btnUpload.disabled = true;
+        btnUpload.classList.add("opacity-50", "cursor-not-allowed");
+
+        statusText.innerHTML = `<span class="text-amber-600 font-bold"><i class="fa-solid fa-spinner animate-spin mr-1"></i>Running script...</span>`;
+
+        setTimeout(() => {
+          statusText.innerHTML = `MicroPython v1.23.0 | ADC: GPIO 34 | PWM: GPIO 3`;
+          btnUpload.disabled = false;
+          btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
+          isUploading = false;
+
+          startSimulationLoop();
+        }, 300);
+      }
+
+      function stopProgramSilently() {
+        isProgramRunning = false;
+        if (liveTimer) {
+          clearInterval(liveTimer);
+          liveTimer = null;
+        }
+        isUploading = false;
+      }
+
+      function stopProgram() {
+        stopProgramSilently();
+
+        const btnUpload = document.getElementById("btnUpload");
+        btnUpload.disabled = false;
+        btnUpload.classList.remove("opacity-50", "cursor-not-allowed");
+
+        const statusText = document.getElementById("ideStatusText");
+        statusText.innerHTML = `MicroPython v1.23.0 | ADC: GPIO 34 | PWM: GPIO 3`;
+
+        const monitor = document.getElementById("serialMonitorOutput");
+        const line = document.createElement("div");
+        line.className = "text-rose-600 font-mono text-xs italic mt-1";
+        line.innerText =
+          'Traceback (most recent call last):\n  File "<stdin>", line 1\nKeyboardInterrupt';
+        monitor.appendChild(line);
+      }
+
+      function clearSerialMonitor() {
+        document.getElementById("serialMonitorOutput").innerHTML =
+          `<div class="text-slate-400 italic">&gt;&gt;&gt; [Shell Cleared]</div>`;
+      }
+
+      function copyCode() {
+        navigator.clipboard.writeText(rawPythonCode).then(() => {
+          const btnText = document.getElementById("btnCopyText");
+          const btnIcon = document.getElementById("btnCopyIcon");
+
+          btnText.innerText = "Tersalin!";
+          btnIcon.className = "fa-solid fa-check text-emerald-600";
+
+          setTimeout(() => {
+            btnText.innerText = "Salin Kode";
+            btnIcon.className = "fa-solid fa-copy text-slate-600";
+          }, 2000);
+        });
+      }
+
+      window.onload = function () {
+        document.getElementById("codeDisplay").innerHTML =
+          renderPythonSyntax(rawPythonCode);
+        onPotentiometerChange(document.getElementById("potSlider").value);
+      };
+    </script>
+  </body>
+</html>
